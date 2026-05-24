@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Freelance Data Engineer & Analyst — I help early-stage startups build their data foundation. From spreadsheets to Snowflake in weeks.">
+    <title>[Your Name] · Data Engineer</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet">
+
+    <style>
+        /* ─────────────────────────────────────────
+           TOKENS
+        ───────────────────────────────────────── */
+        :root {
+            --bg:         #0b0b0b;
+            --surface:    #131313;
+            --surface-2:  #1c1c1c;
+            --border:     #242424;
+            --border-2:   #343434;
+
+            --text:       #dedad4;
+            --text-dim:   #7a7a72;
+            --text-muted: #424242;
+
+            --keyword:    #c9a86c;   /* amber  — SQL keywords  */
+            --string:     #87a878;   /* sage   — string values */
+            --type:       #7a9ec4;   /* steel  — nums & types  */
+            --comment:    #464640;   /* dark   — comments      */
+            --ok:         #6aaa6a;   /* green  — success       */
+
+            --mono:  'JetBrains Mono', 'Courier New', monospace;
+            --serif: 'Fraunces', Georgia, serif;
+
+            --bar-h: 30px;
+            --ease:  cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* ─────────────────────────────────────────
+           RESET
+        ───────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--mono);
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding-bottom: var(--bar-h);
+        }
+
+        ::selection { background: var(--keyword); color: var(--bg); }
+
+        a { color: inherit; text-decoration: none; }
+
+        /* ─────────────────────────────────────────
+           SYNTAX UTILITIES
+        ───────────────────────────────────────── */
+        .kw  { color: var(--keyword); }
+        .str { color: var(--string);  }
+        .typ { color: var(--type);    }
+        .cmt { color: var(--comment); font-style: italic; }
+        .ok  { color: var(--ok);      }
+        .dim { color: var(--text-dim); }
+        .mut { color: var(--text-muted); }
+
+        /* ─────────────────────────────────────────
+           STATUS BAR  (fixed bottom — always visible)
+        ───────────────────────────────────────── */
+        #status-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: var(--bar-h);
+            background: var(--keyword);
+            color: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            z-index: 9999;
+            user-select: none;
+        }
+
+        #status-bar .s-left,
+        #status-bar .s-right { display: flex; align-items: center; gap: 20px; }
+
+        #status-file { opacity: 0.7; transition: opacity 0.3s; }
+
+        .avail-dot {
+            display: inline-block;
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--bg);
+            margin-right: 7px;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.45; transform: scale(0.8); }
+        }
+
+        /* ─────────────────────────────────────────
+           HERO  — SQL QUERY EDITOR
+        ───────────────────────────────────────── */
+        #hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 80px 24px 64px;
+            position: relative;
+            /* subtle dot grid — references data viz */
+            background-image: radial-gradient(circle, #222 1px, transparent 1px);
+            background-size: 28px 28px;
+        }
+
+        .editor-wrap {
+            width: 100%;
+            max-width: 700px;
+        }
+
+        /* window chrome */
+        .editor-chrome {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            padding: 11px 16px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .chrome-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .cd-r { background: #c97070; }
+        .cd-y { background: #c9a86c; }
+        .cd-g { background: #6aaa6a; }
+
+        .chrome-name {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-left: 10px;
+            letter-spacing: 0.05em;
+        }
+
+        /* query body */
+        .editor-body {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-top: 1px solid var(--border-2);
+            border-bottom: none;
+            padding: 28px 36px;
+        }
+
+        .q-line {
+            display: flex;
+            gap: 20px;
+            min-height: 1.9em;
+        }
+
+        .q-ln {
+            color: var(--text-muted);
+            font-size: 12px;
+            min-width: 18px;
+            text-align: right;
+            padding-top: 3px;
+            user-select: none;
+        }
+
+        .q-code { flex: 1; font-size: 14px; line-height: 1.9; }
+
+        #cursor {
+            display: inline-block;
+            width: 8px; height: 1.05em;
+            background: var(--keyword);
+            vertical-align: text-bottom;
+            margin-left: 1px;
+            animation: caret-blink 1s step-end infinite;
+        }
+
+        @keyframes caret-blink {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0; }
+        }
+
+        /* results panel */
+        .editor-results {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-top: 1px solid var(--border-2);
+            border-radius: 0 0 8px 8px;
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.65s var(--ease);
+        }
+
+        .editor-results.open { max-height: 260px; }
+
+        .results-meta {
+            display: flex;
+            justify-content: space-between;
+            padding: 9px 36px;
+            font-size: 11px;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .result-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 15px 36px;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateX(-10px);
+            transition:
+                opacity   0.45s var(--ease),
+                transform 0.45s var(--ease),
+                background 0.18s ease;
+        }
+
+        .result-row.show { opacity: 1; transform: translateX(0); }
+        .result-row:hover { background: var(--surface-2); }
+
+        .rr-idx { color: var(--type); font-size: 12px; min-width: 16px; }
+        .rr-arr { color: var(--keyword); }
+        .rr-txt { font-size: 14px; color: var(--text); }
+        .rr-tag {
+            margin-left: auto;
+            font-size: 10px;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        /* scroll cue */
+        .scroll-cue {
+            margin-top: 52px;
+            font-size: 10px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            animation: drift 2.8s ease-in-out infinite;
+        }
+
+        @keyframes drift {
+            0%, 100% { transform: translateY(0);   opacity: 0.5; }
+            50%       { transform: translateY(7px); opacity: 1;   }
+        }
+
+        /* ─────────────────────────────────────────
+           PIPELINE SECTIONS  (shared skeleton)
+        ───────────────────────────────────────── */
+        .divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .pipe-section {
+            padding: 96px 24px 112px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* stage header row */
+        .stage-hdr {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-bottom: 72px;
+            font-size: 13px;
+        }
+
+        .stage-num  { font-size: 11px; color: var(--text-muted); letter-spacing: 0.1em; }
+        .stage-cmd  { color: var(--text-dim); }
+        .stage-cmd .prompt { color: var(--ok); margin-right: 8px; }
+        .stage-dur  { margin-left: auto; font-size: 11px; color: var(--text-muted); }
+
+        /* section label — the "— name —" separators */
+        .sec-label {
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 48px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sec-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ─────────────────────────────────────────
+           01 — ABOUT
+        ───────────────────────────────────────── */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 80px;
+            align-items: start;
+        }
+
+        .about-headline {
+            font-family: var(--serif);
+            font-size: clamp(34px, 4.5vw, 58px);
+            font-weight: 300;
+            line-height: 1.14;
+            letter-spacing: -0.02em;
+            margin-bottom: 32px;
+        }
+
+        .about-body {
+            font-size: 14px;
+            color: var(--text-dim);
+            line-height: 1.85;
+            margin-bottom: 20px;
+        }
+
+        .exp-block {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 22px 26px;
+            font-size: 12.5px;
+            line-height: 2;
+            border-radius: 2px;
+        }
+
+        /* ─────────────────────────────────────────
+           02 — STACK
+        ───────────────────────────────────────── */
+        .stack-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 2px;
+        }
+
+        .stack-group {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 24px 26px;
+        }
+
+        .stack-group-lbl {
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--keyword);
+            margin-bottom: 16px;
+        }
+
+        .stack-item {
+            display: block;
+            font-size: 13px;
+            color: var(--text-dim);
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .stack-item::before {
+            content: '▸';
+            color: var(--text-muted);
+            font-size: 10px;
+        }
+
+        /* ─────────────────────────────────────────
+           03 — SERVICES  (as a SQL result table)
+        ───────────────────────────────────────── */
+        .svc-query {
+            font-size: 13px;
+            color: var(--text-dim);
+            margin-bottom: 28px;
+            line-height: 1.9;
+        }
+
+        .svc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .svc-table thead tr {
+            border-bottom: 1px solid var(--border-2);
+        }
+
+        .svc-table th {
+            text-align: left;
+            padding: 10px 16px;
+            font-size: 10px;
+            font-weight: 400;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .svc-table .svc-row {
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.18s ease;
+        }
+
+        .svc-table .svc-row:hover,
+        .svc-table .svc-row.open { background: var(--surface); }
+
+        .svc-table td {
+            padding: 20px 16px;
+            vertical-align: middle;
+        }
+
+        .svc-name { font-size: 14px; color: var(--text); }
+
+        .svc-price {
+            color: var(--keyword);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .svc-time { color: var(--text-dim); white-space: nowrap; }
+
+        .svc-expand {
+            color: var(--text-muted);
+            font-size: 11px;
+            transition: transform 0.22s ease;
+            display: inline-block;
+        }
+
+        .svc-row.open .svc-expand { transform: rotate(90deg); }
+
+        .svc-detail { display: none; }
+
+        .svc-table .svc-detail td {
+            padding: 0 16px 22px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .deliverables {
+            font-size: 12px;
+            color: var(--text-dim);
+            line-height: 2.1;
+        }
+
+        .deliverables span { display: block; }
+
+        .deliverables span::before {
+            content: '+ ';
+            color: var(--ok);
+        }
+
+        /* ─────────────────────────────────────────
+           04 — PROJECTS
+        ───────────────────────────────────────── */
+        .proj-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px;
+        }
+
+        .proj-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 36px 32px;
+            transition: border-color 0.2s ease;
+        }
+
+        .proj-card:hover { border-color: var(--border-2); }
+
+        .proj-status {
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .proj-status-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--keyword);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        .proj-name {
+            font-family: var(--serif);
+            font-size: 22px;
+            font-weight: 300;
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .proj-desc {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.75;
+            margin-bottom: 24px;
+        }
+
+        .pill-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 26px; }
+
+        .pill {
+            font-size: 10px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            padding: 3px 9px;
+        }
+
+        .proj-link {
+            font-size: 12px;
+            color: var(--keyword);
+            letter-spacing: 0.04em;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: gap 0.2s ease;
+        }
+
+        .proj-card:hover .proj-link { gap: 11px; }
+
+        /* ─────────────────────────────────────────
+           05 — PROCESS
+        ───────────────────────────────────────── */
+        .process-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            border: 1px solid var(--border);
+        }
+
+        .proc-step {
+            padding: 40px 28px;
+            border-right: 1px solid var(--border);
+            position: relative;
+        }
+
+        .proc-step:last-child { border-right: none; }
+
+        .proc-num {
+            display: block;
+            font-size: 11px;
+            color: var(--keyword);
+            letter-spacing: 0.1em;
+            margin-bottom: 18px;
+        }
+
+        .proc-name {
+            font-family: var(--serif);
+            font-size: 19px;
+            font-weight: 300;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .proc-desc { font-size: 12px; color: var(--text-dim); line-height: 1.75; }
+
+        /* testimonials placeholder */
+        .testi-placeholder {
+            margin-top: 72px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 52px;
+            text-align: center;
+        }
+
+        .testi-cmt {
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--comment);
+            margin-bottom: 14px;
+        }
+
+        .testi-body {
+            font-family: var(--serif);
+            font-size: 21px;
+            font-weight: 300;
+            color: var(--text-muted);
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        /* ─────────────────────────────────────────
+           06 — CONTACT
+        ───────────────────────────────────────── */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: start;
+        }
+
+        .contact-headline {
+            font-family: var(--serif);
+            font-size: clamp(30px, 4vw, 50px);
+            font-weight: 300;
+            line-height: 1.2;
+            margin-bottom: 36px;
+        }
+
+        .contact-links { display: flex; flex-direction: column; }
+
+        .contact-link {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 15px 0;
+            font-size: 13px;
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--border);
+            transition: color 0.2s ease;
+        }
+
+        .contact-link:hover { color: var(--text); }
+
+        .cl-label {
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            min-width: 68px;
+        }
+
+        /* form */
+        .contact-form { display: flex; flex-direction: column; gap: 18px; }
+
+        .form-grp { display: flex; flex-direction: column; gap: 6px; }
+
+        .form-lbl {
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .form-input,
+        .form-area {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 13px;
+            padding: 12px 15px;
+            outline: none;
+            border-radius: 0;
+            transition: border-color 0.2s ease;
+            resize: none;
+            width: 100%;
+        }
+
+        .form-input:focus,
+        .form-area:focus    { border-color: var(--keyword); }
+
+        .form-input::placeholder,
+        .form-area::placeholder { color: var(--text-muted); }
+
+        .form-area { height: 110px; }
+
+        .form-submit {
+            background: var(--keyword);
+            color: var(--bg);
+            border: none;
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            padding: 14px 28px;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+            align-self: flex-start;
+        }
+
+        .form-submit:hover { opacity: 0.82; }
+
+        /* ─────────────────────────────────────────
+           SCROLL REVEAL  SYSTEM
+        ───────────────────────────────────────── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(26px);
+            transition:
+                opacity   0.75s var(--ease),
+                transform 0.75s var(--ease);
+        }
+
+        .reveal.in { opacity: 1; transform: translateY(0); }
+
+        /* stagger delays */
+        .d1 { transition-delay:   0ms; }
+        .d2 { transition-delay: 110ms; }
+        .d3 { transition-delay: 220ms; }
+        .d4 { transition-delay: 330ms; }
+        .d5 { transition-delay: 440ms; }
+
+        /* line-draw accent */
+        .line-draw {
+            height: 1px;
+            background: var(--border-2);
+            transform-origin: left;
+            transform: scaleX(0);
+            transition: transform 0.9s var(--ease);
+        }
+
+        .line-draw.in { transform: scaleX(1); }
+
+        /* ─────────────────────────────────────────
+           MOBILE
+        ───────────────────────────────────────── */
+        @media (max-width: 800px) {
+            .about-grid,
+            .contact-grid,
+            .proj-grid { grid-template-columns: 1fr; gap: 48px; }
+
+            .process-row { grid-template-columns: 1fr; }
+
+            .proc-step { border-right: none; border-bottom: 1px solid var(--border); }
+            .proc-step:last-child { border-bottom: none; }
+
+            .editor-body { padding: 22px 18px; font-size: 13px; }
+
+            .pipe-section { padding: 72px 20px 88px; }
+
+            .stage-dur { display: none; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal, .line-draw {
+                transition: none;
+                opacity: 1; transform: none;
+            }
+            #cursor         { animation: none; }
+            .scroll-cue     { animation: none; }
+            .avail-dot      { animation: none; }
+            .proj-status-dot{ animation: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     STATUS BAR  —  always visible, tracks scroll
+══════════════════════════════════════════════════ -->
+<div id="status-bar">
+    <div class="s-left">
+        <span><span class="avail-dot"></span>Available for projects</span>
+        <span id="status-file" style="opacity:0.65">data_engineer.sql</span>
+    </div>
+    <div class="s-right">
+        <span>UTF-8</span>
+        <span>SQL</span>
+        <span>IST (UTC+5:30)</span>
+    </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     HERO  —  SQL QUERY THAT TYPES ITSELF
+══════════════════════════════════════════════════ -->
+<section id="hero">
+    <div class="editor-wrap">
+
+        <div class="editor-chrome">
+            <span class="chrome-dot cd-r"></span>
+            <span class="chrome-dot cd-y"></span>
+            <span class="chrome-dot cd-g"></span>
+            <span class="chrome-name">data_engineer.sql &mdash; portfolio</span>
+        </div>
+
+        <div class="editor-body" id="editor-body">
+            <div class="q-line">
+                <span class="q-ln">1</span>
+                <span class="q-code cmt">-- query to find the right data engineer</span>
+            </div>
+            <div class="q-line">
+                <span class="q-ln">2</span>
+                <span class="q-code"></span>
+            </div>
+            <!-- lines 3-9 populated by JS -->
+        </div>
+
+        <div class="editor-results" id="editor-results">
+            <div class="results-meta">
+                <span>1 row returned &middot; <span id="q-time">0ms</span></span>
+                <span>SELECT result</span>
+            </div>
+            <div class="result-row" id="rr1" onclick="goTo('transform')">
+                <span class="rr-idx">1</span>
+                <span class="rr-arr">→</span>
+                <span class="rr-txt">Build my data stack from scratch</span>
+                <span class="rr-tag">foundation</span>
+            </div>
+            <div class="result-row" id="rr2" onclick="goTo('transform')">
+                <span class="rr-idx">2</span>
+                <span class="rr-arr">→</span>
+                <span class="rr-txt">Fix &amp; scale what we already have</span>
+                <span class="rr-tag">audit · retainer</span>
+            </div>
+        </div>
+
+    </div><!-- /editor-wrap -->
+    <div class="scroll-cue">↓ scroll to run the pipeline</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     01  DOCKER-COMPOSE UP  —  ABOUT
+══════════════════════════════════════════════════ -->
+<hr class="divider">
+<section id="init" class="pipe-section" data-status="01_init.sh">
+
+    <div class="stage-hdr reveal">
+        <span class="stage-num">[ 01 ]</span>
+        <span class="stage-cmd"><span class="prompt">$</span>docker-compose up -d</span>
+        <span class="stage-dur dim">environment initialized &middot; 1.2s</span>
+    </div>
+
+    <div class="about-grid">
+        <div>
+            <h1 class="about-headline reveal d1">
+                I turn messy data into decisions founders trust.
+            </h1>
+            <p class="about-body reveal d2">
+                Freelance Data Engineer &amp; Analyst. Previously at Goldman Sachs — now building real-time data infrastructure at an AI startup. Available to early-stage US &amp; EU teams who need a data foundation fast.
+            </p>
+            <p class="about-body reveal d3">
+                From spreadsheets to Snowflake. From gut feel to metrics. That's the gap I close.
+            </p>
+        </div>
+
+        <div class="reveal d2">
+            <div class="exp-block">
+                <div class="cmt"># experience</div>
+                <br>
+                experience = [<br>
+                &nbsp;&nbsp;{<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"company"</span>&nbsp;: <span class="kw">"Goldman Sachs"</span>,<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"domain"</span>&nbsp;&nbsp;: <span class="typ">"financial_data"</span>,<br>
+                &nbsp;&nbsp;},<br>
+                &nbsp;&nbsp;{<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"company"</span>&nbsp;: <span class="kw">"AI Startup"</span>,<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"domain"</span>&nbsp;&nbsp;: <span class="typ">"ml_infrastructure"</span>,<br>
+                &nbsp;&nbsp;},<br>
+                ]<br>
+                <br>
+                <span class="cmt"># current status</span><br>
+                status&nbsp;&nbsp;&nbsp;= <span class="str">"available"</span> <span class="ok">✓</span><br>
+                timezone = <span class="str">"IST"</span> <span class="dim">| us_overlap = True</span>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     02  PIP INSTALL  —  STACK
+══════════════════════════════════════════════════ -->
+<hr class="divider">
+<section id="install" class="pipe-section" data-status="02_requirements.txt">
+
+    <div class="stage-hdr reveal">
+        <span class="stage-num">[ 02 ]</span>
+        <span class="stage-cmd"><span class="prompt">$</span>pip install -r requirements.txt</span>
+        <span class="stage-dur dim">12 packages installed &middot; 3.4s</span>
+    </div>
+
+    <div class="sec-label reveal">stack</div>
+
+    <div class="stack-grid">
+        <div class="stack-group reveal d1">
+            <div class="stack-group-lbl">-- warehouse</div>
+            <span class="stack-item">Snowflake</span>
+            <span class="stack-item">BigQuery</span>
+            <span class="stack-item">Redshift</span>
+        </div>
+        <div class="stack-group reveal d2">
+            <div class="stack-group-lbl">-- transformation</div>
+            <span class="stack-item">dbt (core + cloud)</span>
+            <span class="stack-item">SQL</span>
+            <span class="stack-item">Python</span>
+        </div>
+        <div class="stack-group reveal d3">
+            <div class="stack-group-lbl">-- orchestration</div>
+            <span class="stack-item">Apache Airflow</span>
+            <span class="stack-item">Prefect</span>
+        </div>
+        <div class="stack-group reveal d4">
+            <div class="stack-group-lbl">-- visualisation</div>
+            <span class="stack-item">Power BI</span>
+            <span class="stack-item">Tableau</span>
+            <span class="stack-item">Looker / Looker Studio</span>
+            <span class="stack-item">Metabase</span>
+        </div>
+        <div class="stack-group reveal d2">
+            <div class="stack-group-lbl">-- ingestion</div>
+            <span class="stack-item">Fivetran</span>
+            <span class="stack-item">Airbyte</span>
+            <span class="stack-item">Custom pipelines</span>
+        </div>
+        <div class="stack-group reveal d3">
+            <div class="stack-group-lbl">-- cloud</div>
+            <span class="stack-item">AWS</span>
+            <span class="stack-item">GCP <span class="cmt"># upskilling</span></span>
+        </div>
+    </div>
+
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     03  DBT RUN  —  SERVICES
+══════════════════════════════════════════════════ -->
+<hr class="divider">
+<section id="transform" class="pipe-section" data-status="03_services.sql">
+
+    <div class="stage-hdr reveal">
+        <span class="stage-num">[ 03 ]</span>
+        <span class="stage-cmd"><span class="prompt">$</span>dbt run --models staging.+ marts.+</span>
+        <span class="stage-dur dim">4 models built &middot; 0 errors &middot; 0 warnings</span>
+    </div>
+
+    <div class="sec-label reveal">services</div>
+
+    <div class="svc-query reveal">
+        <span class="kw">SELECT</span>&nbsp;&nbsp;service, from_usd, timeline, deliverables<br>
+        <span class="kw">FROM</span>&nbsp;&nbsp;&nbsp;&nbsp;packages<br>
+        <span class="kw">ORDER BY</span> investment <span class="kw">ASC</span>;
+    </div>
+
+    <table class="svc-table reveal">
+        <thead>
+            <tr>
+                <th>service</th>
+                <th>from_usd</th>
+                <th>timeline</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+
+            <tr class="svc-row" onclick="toggleSvc(this)">
+                <td><span class="svc-name">Data Audit &amp; Roadmap</span></td>
+                <td><span class="svc-price">$500</span></td>
+                <td><span class="svc-time">3–5 days</span></td>
+                <td><span class="svc-expand">▸</span></td>
+            </tr>
+            <tr class="svc-detail">
+                <td colspan="4"><div class="deliverables">
+                    <span>Full stack review &amp; gap analysis</span>
+                    <span>Prioritised recommendations you can act on immediately</span>
+                    <span>Quick wins identified, longer roadmap drafted</span>
+                    <span>Written report + 30-min debrief call</span>
+                </div></td>
+            </tr>
+
+            <tr class="svc-row" onclick="toggleSvc(this)">
+                <td><span class="svc-name">Metrics &amp; Dashboard Sprint</span></td>
+                <td><span class="svc-price">$750</span></td>
+                <td><span class="svc-time">1–2 weeks</span></td>
+                <td><span class="svc-expand">▸</span></td>
+            </tr>
+            <tr class="svc-detail">
+                <td colspan="4"><div class="deliverables">
+                    <span>KPI framework for your stage</span>
+                    <span>2–3 production dashboards</span>
+                    <span>Clean SQL models underneath</span>
+                    <span>Docs so your team can self-serve</span>
+                </div></td>
+            </tr>
+
+            <tr class="svc-row" onclick="toggleSvc(this)">
+                <td><span class="svc-name">Data Foundation Setup</span></td>
+                <td><span class="svc-price">$1,500</span></td>
+                <td><span class="svc-time">2–3 weeks</span></td>
+                <td><span class="svc-expand">▸</span></td>
+            </tr>
+            <tr class="svc-detail">
+                <td colspan="4"><div class="deliverables">
+                    <span>Data warehouse provisioned &amp; configured</span>
+                    <span>dbt project — staging + mart models</span>
+                    <span>2+ source connectors wired up</span>
+                    <span>1 exec-ready dashboard</span>
+                    <span>Full documentation &amp; handoff session</span>
+                </div></td>
+            </tr>
+
+            <tr class="svc-row" onclick="toggleSvc(this)">
+                <td><span class="svc-name">Monthly Data Partner</span></td>
+                <td><span class="svc-price">$2,000<span class="dim">/mo</span></span></td>
+                <td><span class="svc-time">15–30 hrs/mo</span></td>
+                <td><span class="svc-expand">▸</span></td>
+            </tr>
+            <tr class="svc-detail">
+                <td colspan="4"><div class="deliverables">
+                    <span>Ongoing pipeline builds &amp; maintenance</span>
+                    <span>Weekly sync — async Slack support</span>
+                    <span>New dashboards &amp; metrics as you scale</span>
+                    <span>Priority response, treated as internal team</span>
+                </div></td>
+            </tr>
+
+        </tbody>
+    </table>
+
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     04  GIT PUSH  —  PROJECTS
+══════════════════════════════════════════════════ -->
+<hr class="divider">
+<section id="load" class="pipe-section" data-status="04_projects/README.md">
+
+    <div class="stage-hdr reveal">
+        <span class="stage-num">[ 04 ]</span>
+        <span class="stage-cmd"><span class="prompt">$</span>git push origin main</span>
+        <span class="stage-dur dim">2 objects pushed &middot; writing done</span>
+    </div>
+
+    <div class="sec-label reveal">projects</div>
+
+    <div class="proj-grid">
+
+        <div class="proj-card reveal d1">
+            <div class="proj-status">
+                <span class="proj-status-dot"></span>
+                building — post GCP upskilling
+            </div>
+            <h3 class="proj-name">[Project 01 — name coming soon]</h3>
+            <p class="proj-desc">
+                End-to-end data pipeline on GCP. Ingestion → BigQuery → dbt transformation → Looker Studio dashboard tracking real product metrics.
+            </p>
+            <div class="pill-row">
+                <span class="pill">Python</span>
+                <span class="pill">dbt</span>
+                <span class="pill">BigQuery</span>
+                <span class="pill">GCP</span>
+                <span class="pill">Looker Studio</span>
+            </div>
+            <a href="#" class="proj-link dim">→ GitHub &nbsp;<span class="mut">(coming soon)</span></a>
+        </div>
+
+        <div class="proj-card reveal d2">
+            <div class="proj-status">
+                <span class="proj-status-dot"></span>
+                building — post GCP upskilling
+            </div>
+            <h3 class="proj-name">[Project 02 — name coming soon]</h3>
+            <p class="proj-desc">
+                Analytics engineering showcase — modular dbt models, Airflow orchestration, and Metabase dashboards tracking real startup metrics.
+            </p>
+            <div class="pill-row">
+                <span class="pill">Airflow</span>
+                <span class="pill">dbt</span>
+                <span class="pill">Snowflake</span>
+                <span class="pill">Metabase</span>
+            </div>
+            <a href="#" class="proj-link dim">→ GitHub &nbsp;<span class="mut">(coming soon)</span></a>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     05  BI RENDER  —  HOW I WORK + TESTIMONIALS
+══════════════════════════════════════════════════ -->
+<hr class="divider">
+<section id="render" class="pipe-section" data-status="05_how_i_work.md">
+
+    <div class="stage-hdr reveal">
+        <span class="stage-num">[ 05 ]</span>
+        <span class="stage-cmd"><span class="prompt">$</span>bi render --charts=4 --output=dashboard</span>
+        <span class="stage-dur dim">4 charts &middot; 0 errors</span>
+    </div>
+
+    <div class="sec-label reveal">how i work</div>
+
+    <div class="process-row">
+        <div class="proc-step reveal d1">
+            <span class="proc-num">01 /</span>
+            <h3 class="proc-name">Discovery</h3>
+            <p class="proc-desc">30-min call. I want to understand your data landscape, your biggest pain, and what success looks like for you.</p>
+        </div>
+        <div class="proc-step reveal d2">
+            <span class="proc-num">02 /</span>
+            <h3 class="proc-name">Proposal</h3>
+            <p class="proc-desc">Scoped plan, clear timeline, fixed price. No fluff — you know exactly what you're getting and by when.</p>
+        </div>
+        <div class="proc-step reveal d3">
+            <span class="proc-num">03 /</span>
+            <h3 class="proc-name">Build</h3>
+            <p class="proc-desc">I work async, ship in stages. You see progress every few days — not at the end of a long dark tunnel.</p>
+        </div>
+        <div class="proc-step reveal d4">
+            <span class="proc-num">04 /</span>
+            <h3 class="proc-name">Handoff</h3>
+            <p class="proc-desc">Everything documented. Your team can run it, extend it, and understand it without me in the room.</p>
+        </div>
+    </div>
+
+    <div class="testi-placeholder reveal" style="margin-top:72px">
+        <div class="testi-cmt">-- testimonials placeholder</div>
+        <div class="testi-body">
+            "Building trust with early clients now.<br>Testimonials coming soon — honesty over fake social proof."
+        </div>
+    </div>
+
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     06  PIPELINE COMPLETE  —  CONTACT
+══════════════════════════════════════════════════ -->
+<hr class="divider">
+<section id="complete" class="pipe-section" data-status="06_contact.sh">
+
+    <div class="stage-hdr reveal">
+        <span class="stage-num">[ 06 ]</span>
+        <span class="stage-cmd">
+            <span class="ok">✓</span>&nbsp; pipeline complete &middot; next run:
+            <span class="kw">available now</span>
+        </span>
+        <span class="stage-dur dim">total &middot; 4.2s</span>
+    </div>
+
+    <div class="contact-grid">
+        <div>
+            <h2 class="contact-headline reveal">
+                Let's build your<br>
+                <em>data foundation.</em>
+            </h2>
+
+            <div class="contact-links reveal d2">
+                <a href="mailto:[your@email.com]" class="contact-link">
+                    <span class="cl-label">email</span>
+                    [your@email.com]
+                </a>
+                <a href="#" target="_blank" rel="noopener" class="contact-link">
+                    <span class="cl-label">linkedin</span>
+                    [linkedin profile url]
+                </a>
+                <a href="#" target="_blank" rel="noopener" class="contact-link">
+                    <span class="cl-label">github</span>
+                    github.com/[username]
+                </a>
+                <a href="#" target="_blank" rel="noopener" class="contact-link">
+                    <span class="cl-label">book a call</span>
+                    30-min discovery &middot; Calendly →
+                </a>
+            </div>
+        </div>
+
+        <div class="reveal d2">
+            <form class="contact-form"
+                  action="https://formspree.io/f/[YOUR_FORM_ID]"
+                  method="POST">
+                <div class="form-grp">
+                    <label class="form-lbl" for="name">-- name</label>
+                    <input class="form-input" type="text" id="name" name="name"
+                           placeholder="Jane (from Acme Inc)" required>
+                </div>
+                <div class="form-grp">
+                    <label class="form-lbl" for="email">-- email</label>
+                    <input class="form-input" type="email" id="email" name="email"
+                           placeholder="jane@acme.com" required>
+                </div>
+                <div class="form-grp">
+                    <label class="form-lbl" for="msg">-- tell me about your data problem</label>
+                    <textarea class="form-area" id="msg" name="message"
+                              placeholder="We have data in 5 spreadsheets, a Stripe account, and HubSpot — and no idea what's actually going on."
+                              required></textarea>
+                </div>
+                <button type="submit" class="form-submit">
+                    execute → send_message()
+                </button>
+            </form>
+        </div>
+    </div>
+
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════ -->
+<script>
+/* ─────────────────────────────────────────────────
+   HERO  —  TYPING ANIMATION
+───────────────────────────────────────────────── */
+const LINES = [
+    { ln: 3, html: '<span class="kw">SELECT</span>  *' },
+    { ln: 4, html: '<span class="kw">FROM</span>    freelance_data_engineers' },
+    { ln: 5, html: '<span class="kw">WHERE</span>   builds_real_foundations <span class="kw">=</span> <span class="typ">TRUE</span>' },
+    { ln: 6, html: '<span class="kw">  AND</span>   worked_at <span class="kw">=</span> <span class="str">\'Goldman Sachs\'</span>' },
+    { ln: 7, html: '<span class="kw">  AND</span>   currently_building_at <span class="kw">=</span> <span class="str">\'AI startup\'</span>' },
+    { ln: 8, html: '<span class="kw">LIMIT</span>   <span class="typ">1</span>;' },
+];
+
+const editorBody = document.getElementById('editor-body');
+let lineIdx = 0;
+
+/* Create cursor element */
+const cursorEl = document.createElement('span');
+cursorEl.id = 'cursor';
+
+function buildLine(lnNum) {
+    const row  = document.createElement('div');
+    row.className = 'q-line';
+    const numEl  = document.createElement('span');
+    numEl.className = 'q-ln';
+    numEl.textContent = lnNum;
+    const codeEl = document.createElement('span');
+    codeEl.className = 'q-code';
+    codeEl.id = 'ql-' + lnNum;
+    row.appendChild(numEl);
+    row.appendChild(codeEl);
+    return { row, codeEl };
+}
+
+function typeLines() {
+    if (lineIdx >= LINES.length) {
+        setTimeout(revealResults, 500);
+        return;
+    }
+
+    const { ln, html } = LINES[lineIdx];
+    const { row, codeEl } = buildLine(ln);
+    editorBody.appendChild(row);
+
+    /* Move cursor into this line while it "types" */
+    codeEl.appendChild(cursorEl);
+
+    setTimeout(() => {
+        codeEl.innerHTML = html;
+        codeEl.appendChild(cursorEl);
+        lineIdx++;
+        setTimeout(typeLines, lineIdx < LINES.length ? 90 : 400);
+    }, lineIdx === 0 ? 700 : 60);
+}
+
+function revealResults() {
+    cursorEl.remove();
+
+    const panel = document.getElementById('editor-results');
+    panel.classList.add('open');
+
+    /* Animate query timer */
+    let ms = 0;
+    const timeEl = document.getElementById('q-time');
+    const tick = setInterval(() => {
+        ms += Math.floor(Math.random() * 14) + 4;
+        timeEl.textContent = ms + 'ms';
+        if (ms >= 142) { clearInterval(tick); timeEl.textContent = '142ms'; }
+    }, 35);
+
+    setTimeout(() => document.getElementById('rr1').classList.add('show'), 380);
+    setTimeout(() => document.getElementById('rr2').classList.add('show'), 560);
+}
+
+/* Kick off after brief pause so user sees the static comment first */
+setTimeout(() => {
+    /* Drop cursor into first line slot before typing starts */
+    const placeholder = buildLine(3);
+    editorBody.appendChild(placeholder.row);
+    placeholder.codeEl.appendChild(cursorEl);
+    setTimeout(typeLines, 600);
+}, 200);
+
+
+/* ─────────────────────────────────────────────────
+   SMOOTH SCROLL HELPER
+───────────────────────────────────────────────── */
+function goTo(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+
+/* ─────────────────────────────────────────────────
+   STATUS BAR  —  tracks current section
+───────────────────────────────────────────────── */
+const statusFile = document.getElementById('status-file');
+const sectionEls = document.querySelectorAll('[data-status]');
+
+const sectionWatcher = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if (e.isIntersecting) {
+            statusFile.textContent = e.target.dataset.status;
+        }
+    });
+}, { threshold: 0.25 });
+
+sectionEls.forEach(s => sectionWatcher.observe(s));
+
+
+/* ─────────────────────────────────────────────────
+   SCROLL REVEAL
+───────────────────────────────────────────────── */
+const revealEls = document.querySelectorAll('.reveal, .line-draw');
+
+const revealWatcher = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if (e.isIntersecting) {
+            e.target.classList.add('in');
+            revealWatcher.unobserve(e.target);
+        }
+    });
+}, { threshold: 0.08, rootMargin: '0px 0px -50px 0px' });
+
+revealEls.forEach(el => revealWatcher.observe(el));
+
+
+/* ─────────────────────────────────────────────────
+   SERVICES TABLE  —  expand / collapse rows
+───────────────────────────────────────────────── */
+function toggleSvc(row) {
+    const detail = row.nextElementSibling;
+    const isOpen = row.classList.contains('open');
+
+    /* Collapse all */
+    document.querySelectorAll('.svc-row.open').forEach(r => {
+        r.classList.remove('open');
+        r.nextElementSibling.style.display = 'none';
+    });
+
+    if (!isOpen) {
+        row.classList.add('open');
+        detail.style.display = 'table-row';
+    }
+}
+</script>
+
+</body>
+</html>
