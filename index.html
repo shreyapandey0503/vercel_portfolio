@@ -15,26 +15,27 @@
            TOKENS
         ───────────────────────────────────────── */
         :root {
-            --bg:         #0b0b0b;
-            --surface:    #131313;
-            --surface-2:  #1c1c1c;
-            --border:     #242424;
-            --border-2:   #343434;
+            --bg:         #F7F5F0;   /* warm parchment                */
+            --surface:    #FFFFFF;   /* white panels                  */
+            --surface-2:  #EEECEA;   /* slightly deeper               */
+            --border:     #DDD9D0;   /* warm gray                     */
+            --border-2:   #C4BFB5;   /* stronger border               */
 
-            --text:       #dedad4;
-            --text-dim:   #7a7a72;
-            --text-muted: #424242;
+            --text:       #1A1916;   /* near-black, warm              */
+            --text-dim:   #5A5650;   /* medium warm gray              */
+            --text-muted: #9A9690;   /* muted warm gray               */
 
-            --keyword:    #c9a86c;   /* amber  — SQL keywords  */
-            --string:     #87a878;   /* sage   — string values */
-            --type:       #7a9ec4;   /* steel  — nums & types  */
-            --comment:    #464640;   /* dark   — comments      */
-            --ok:         #6aaa6a;   /* green  — success       */
+            --keyword:    #1A73E8;   /* Google Blue   — SQL keywords  */
+            --string:     #137333;   /* Google Green  — string values */
+            --type:       #B45309;   /* Amber-orange  — nums & types  */
+            --comment:    #ABAAA5;   /* warm gray     — comments      */
+            --ok:         #137333;   /* Google Green  — success       */
+            --red:        #C5221F;   /* Google Red    — errors        */
 
             --mono:  'JetBrains Mono', 'Courier New', monospace;
             --serif: 'Fraunces', Georgia, serif;
 
-            --bar-h: 30px;
+            --bar-h: 32px;
             --ease:  cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -76,8 +77,8 @@
             position: fixed;
             bottom: 0; left: 0; right: 0;
             height: var(--bar-h);
-            background: var(--keyword);
-            color: var(--bg);
+            background: #1A73E8;
+            color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -98,7 +99,7 @@
             display: inline-block;
             width: 7px; height: 7px;
             border-radius: 50%;
-            background: var(--bg);
+            background: #ffffff;
             margin-right: 7px;
             animation: pulse-dot 2s ease-in-out infinite;
         }
@@ -120,7 +121,7 @@
             padding: 80px 24px 64px;
             position: relative;
             /* subtle dot grid — references data viz */
-            background-image: radial-gradient(circle, #222 1px, transparent 1px);
+            background-image: radial-gradient(circle, #C8C4BC 1px, transparent 1px);
             background-size: 28px 28px;
         }
 
@@ -177,12 +178,12 @@
             user-select: none;
         }
 
-        .q-code { flex: 1; font-size: 14px; line-height: 1.9; }
+        .q-code { flex: 1; font-size: 16px; line-height: 1.9; }
 
         #cursor {
             display: inline-block;
             width: 8px; height: 1.05em;
-            background: var(--keyword);
+            background: #1A73E8;
             vertical-align: text-bottom;
             margin-left: 1px;
             animation: caret-blink 1s step-end infinite;
@@ -234,7 +235,7 @@
 
         .rr-idx { color: var(--type); font-size: 12px; min-width: 16px; }
         .rr-arr { color: var(--keyword); }
-        .rr-txt { font-size: 14px; color: var(--text); }
+        .rr-txt { font-size: 16px; color: var(--text); }
         .rr-tag {
             margin-left: auto;
             font-size: 10px;
@@ -320,7 +321,7 @@
 
         .about-headline {
             font-family: var(--serif);
-            font-size: clamp(34px, 4.5vw, 58px);
+            font-size: clamp(40px, 5vw, 64px);
             font-weight: 300;
             line-height: 1.14;
             letter-spacing: -0.02em;
@@ -328,7 +329,7 @@
         }
 
         .about-body {
-            font-size: 14px;
+            font-size: 17px;
             color: var(--text-dim);
             line-height: 1.85;
             margin-bottom: 20px;
@@ -337,9 +338,9 @@
         .exp-block {
             background: var(--surface);
             border: 1px solid var(--border);
-            padding: 22px 26px;
-            font-size: 12.5px;
-            line-height: 2;
+            padding: 24px 28px;
+            font-size: 14px;
+            line-height: 2.1;
             border-radius: 2px;
         }
 
@@ -368,7 +369,7 @@
 
         .stack-item {
             display: block;
-            font-size: 13px;
+            font-size: 15px;
             color: var(--text-dim);
             padding: 4px 0;
             display: flex;
@@ -386,7 +387,7 @@
            03 — SERVICES  (as a SQL result table)
         ───────────────────────────────────────── */
         .svc-query {
-            font-size: 13px;
+            font-size: 15px;
             color: var(--text-dim);
             margin-bottom: 28px;
             line-height: 1.9;
@@ -395,7 +396,7 @@
         .svc-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13px;
+            font-size: 15px;
         }
 
         .svc-table thead tr {
@@ -426,7 +427,7 @@
             vertical-align: middle;
         }
 
-        .svc-name { font-size: 14px; color: var(--text); }
+        .svc-name { font-size: 16px; color: var(--text); }
 
         .svc-price {
             color: var(--keyword);
@@ -453,9 +454,9 @@
         }
 
         .deliverables {
-            font-size: 12px;
+            font-size: 14px;
             color: var(--text-dim);
-            line-height: 2.1;
+            line-height: 2.2;
         }
 
         .deliverables span { display: block; }
@@ -503,16 +504,16 @@
 
         .proj-name {
             font-family: var(--serif);
-            font-size: 22px;
+            font-size: 26px;
             font-weight: 300;
             margin-bottom: 12px;
             line-height: 1.3;
         }
 
         .proj-desc {
-            font-size: 13px;
+            font-size: 15px;
             color: var(--text-dim);
-            line-height: 1.75;
+            line-height: 1.8;
             margin-bottom: 24px;
         }
 
@@ -566,13 +567,13 @@
 
         .proc-name {
             font-family: var(--serif);
-            font-size: 19px;
+            font-size: 22px;
             font-weight: 300;
             margin-bottom: 10px;
             line-height: 1.3;
         }
 
-        .proc-desc { font-size: 12px; color: var(--text-dim); line-height: 1.75; }
+        .proc-desc { font-size: 14px; color: var(--text-dim); line-height: 1.8; }
 
         /* testimonials placeholder */
         .testi-placeholder {
@@ -593,7 +594,7 @@
 
         .testi-body {
             font-family: var(--serif);
-            font-size: 21px;
+            font-size: 24px;
             font-weight: 300;
             color: var(--text-muted);
             font-style: italic;
@@ -612,7 +613,7 @@
 
         .contact-headline {
             font-family: var(--serif);
-            font-size: clamp(30px, 4vw, 50px);
+            font-size: clamp(36px, 4.5vw, 56px);
             font-weight: 300;
             line-height: 1.2;
             margin-bottom: 36px;
@@ -624,8 +625,8 @@
             display: flex;
             align-items: center;
             gap: 20px;
-            padding: 15px 0;
-            font-size: 13px;
+            padding: 16px 0;
+            font-size: 15px;
             color: var(--text-dim);
             border-bottom: 1px solid var(--border);
             transition: color 0.2s ease;
@@ -659,8 +660,8 @@
             border: 1px solid var(--border);
             color: var(--text);
             font-family: var(--mono);
-            font-size: 13px;
-            padding: 12px 15px;
+            font-size: 15px;
+            padding: 13px 16px;
             outline: none;
             border-radius: 0;
             transition: border-color 0.2s ease;
@@ -669,7 +670,7 @@
         }
 
         .form-input:focus,
-        .form-area:focus    { border-color: var(--keyword); }
+        .form-area:focus    { border-color: #1A73E8; }
 
         .form-input::placeholder,
         .form-area::placeholder { color: var(--text-muted); }
@@ -677,15 +678,15 @@
         .form-area { height: 110px; }
 
         .form-submit {
-            background: var(--keyword);
-            color: var(--bg);
+            background: #1A73E8;
+            color: #ffffff;
             border: none;
             font-family: var(--mono);
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
             letter-spacing: 0.09em;
             text-transform: uppercase;
-            padding: 14px 28px;
+            padding: 15px 30px;
             cursor: pointer;
             transition: opacity 0.2s ease;
             align-self: flex-start;
