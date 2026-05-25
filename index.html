@@ -23,12 +23,12 @@
 
             --text:       #1A1916;   /* near-black, warm              */
             --text-dim:   #5A5650;   /* medium warm gray              */
-            --text-muted: #9A9690;   /* muted warm gray               */
+            --text-muted: #7A7670;   /* muted warm gray               */
 
             --keyword:    #1A73E8;   /* Google Blue   — SQL keywords  */
             --string:     #137333;   /* Google Green  — string values */
             --type:       #B45309;   /* Amber-orange  — nums & types  */
-            --comment:    #ABAAA5;   /* warm gray     — comments      */
+            --comment:    #7A7670;   /* warm gray     — comments      */
             --ok:         #137333;   /* Google Green  — success       */
             --red:        #C5221F;   /* Google Red    — errors        */
 
@@ -282,20 +282,20 @@
             flex-wrap: wrap;
             gap: 14px;
             margin-bottom: 72px;
-            font-size: 13px;
+            font-size: 14px;
         }
 
         .stage-num  { font-size: 11px; color: var(--text-muted); letter-spacing: 0.1em; }
-        .stage-cmd  { color: var(--text-dim); }
+        .stage-cmd  { color: var(--text); font-size: 15px; }
         .stage-cmd .prompt { color: var(--ok); margin-right: 8px; }
         .stage-dur  { margin-left: auto; font-size: 11px; color: var(--text-muted); }
 
         /* section label — the "— name —" separators */
         .sec-label {
-            font-size: 10px;
+            font-size: 11px;
             letter-spacing: 0.18em;
             text-transform: uppercase;
-            color: var(--text-muted);
+            color: var(--text-dim);
             margin-bottom: 48px;
             display: flex;
             align-items: center;
@@ -541,39 +541,180 @@
         .proj-card:hover .proj-link { gap: 11px; }
 
         /* ─────────────────────────────────────────
-           05 — PROCESS
+           05 — PIPELINE DIAGRAM
         ───────────────────────────────────────── */
-        .process-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            border: 1px solid var(--border);
-        }
-
-        .proc-step {
-            padding: 40px 28px;
-            border-right: 1px solid var(--border);
-            position: relative;
-        }
-
-        .proc-step:last-child { border-right: none; }
-
-        .proc-num {
-            display: block;
+        .pd-hint {
             font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 0.06em;
+            font-style: italic;
+            margin-bottom: 52px;
+        }
+
+        .pd-track {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-bottom: 160px; /* room for tallest tooltip */
+        }
+
+        /* nodes + connectors start hidden, revealed on .active */
+        .pd-node, .pd-conn {
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
+        }
+
+        #pipeline-diagram.active .pd-node,
+        #pipeline-diagram.active .pd-conn { opacity: 1; transform: translateY(0); }
+
+        /* NODES */
+        .pd-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            cursor: default;
+            min-width: 80px;
+            z-index: 2;
+        }
+
+        .pd-circle {
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            border: 1.5px solid var(--border-2);
+            background: var(--surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease, background 0.25s ease;
+        }
+
+        .pd-node:hover .pd-circle {
+            border-color: var(--keyword);
+            box-shadow: 0 0 0 5px rgba(26, 115, 232, 0.1);
+            transform: scale(1.08);
+            background: #f0f5ff;
+        }
+
+        .pd-abbr {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-dim);
+            letter-spacing: 0.06em;
+            transition: color 0.25s ease;
+        }
+
+        .pd-node:hover .pd-abbr { color: var(--keyword); }
+
+        .pd-node-label {
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            transition: color 0.25s ease;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .pd-node:hover .pd-node-label { color: var(--text-dim); }
+
+        /* CONNECTORS */
+        .pd-conn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            height: 70px;
+            min-width: 44px;
+            z-index: 1;
+        }
+
+        .pd-conn-line {
+            width: 100%;
+            height: 1px;
+            background: var(--border-2);
+            position: relative;
+            overflow: visible;
+        }
+
+        .pd-dot {
+            position: absolute;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--keyword);
+            top: -2.5px;
+            left: 0;
+            opacity: 0;
+        }
+
+        #pipeline-diagram.active .pd-dot {
+            animation: pd-flow 2.2s ease-in-out infinite;
+        }
+
+        @keyframes pd-flow {
+            0%   { left: 0%;   opacity: 0; }
+            8%   {             opacity: 1; }
+            92%  {             opacity: 1; }
+            100% { left: 100%; opacity: 0; }
+        }
+
+        /* TOOLTIPS */
+        .pd-tooltip {
+            position: absolute;
+            top: calc(100% + 20px);
+            left: 50%;
+            transform: translateX(-50%) translateY(8px);
+            width: 210px;
+            background: var(--surface);
+            border: 1px solid var(--border-2);
+            padding: 18px 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 200;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+        }
+
+        .pd-tooltip--left  { left: 0;    transform: translateY(8px); }
+        .pd-tooltip--right { left: auto; right: 0; transform: translateY(8px); }
+
+        .pd-node:hover .pd-tooltip            { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+        .pd-node:hover .pd-tooltip--left      { opacity: 1; transform: translateY(0); }
+        .pd-node:hover .pd-tooltip--right     { opacity: 1; transform: translateY(0); }
+
+        .pd-tt-title {
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
             color: var(--keyword);
-            letter-spacing: 0.1em;
-            margin-bottom: 18px;
+            margin-bottom: 9px;
         }
 
-        .proc-name {
-            font-family: var(--serif);
-            font-size: 22px;
-            font-weight: 300;
-            margin-bottom: 10px;
-            line-height: 1.3;
+        .pd-tt-body {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.75;
+            margin-bottom: 13px;
         }
 
-        .proc-desc { font-size: 14px; color: var(--text-dim); line-height: 1.8; }
+        .pd-tt-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+
+        .pd-tt-tags span {
+            font-size: 10px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            padding: 2px 7px;
+        }
+
+        @media (max-width: 800px) {
+            #pipeline-diagram { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .pd-track { padding-bottom: 20px; min-width: 580px; }
+            .pd-tooltip { display: none; }
+            .pd-hint    { display: none; }
+        }
 
         /* testimonials placeholder */
         .testi-placeholder {
@@ -1249,36 +1390,93 @@
      05  BI RENDER  —  HOW I WORK + TESTIMONIALS
 ══════════════════════════════════════════════════ -->
 <div class="pipe-connector"><div class="pipe-line"><div class="pipe-dot"></div></div></div>
-<section id="render" class="pipe-section" data-status="05_how_i_work.md">
+<section id="render" class="pipe-section" data-status="05_pipeline.svg">
 
     <div class="stage-hdr reveal">
         <span class="stage-num">[ 05 ]</span>
-        <span class="stage-cmd"><span class="prompt">$</span>bi render --charts=4 --output=dashboard</span>
-        <span class="stage-dur dim">4 charts &middot; 0 errors</span>
+        <span class="stage-cmd"><span class="prompt">$</span>bi render --output=pipeline.svg --animate</span>
+        <span class="stage-dur dim">5 nodes &middot; 4 edges &middot; 0 errors</span>
     </div>
 
-    <div class="sec-label reveal">how i work</div>
+    <div class="sec-label reveal">data pipeline</div>
 
-    <div class="process-row">
-        <div class="proc-step reveal d1">
-            <span class="proc-num">01 /</span>
-            <h3 class="proc-name">Discovery</h3>
-            <p class="proc-desc">30-min call. I want to understand your data landscape, your biggest pain, and what success looks like for you.</p>
-        </div>
-        <div class="proc-step reveal d2">
-            <span class="proc-num">02 /</span>
-            <h3 class="proc-name">Proposal</h3>
-            <p class="proc-desc">Scoped plan, clear timeline, fixed price. No fluff — you know exactly what you're getting and by when.</p>
-        </div>
-        <div class="proc-step reveal d3">
-            <span class="proc-num">03 /</span>
-            <h3 class="proc-name">Build</h3>
-            <p class="proc-desc">I work async, ship in stages. You see progress every few days — not at the end of a long dark tunnel.</p>
-        </div>
-        <div class="proc-step reveal d4">
-            <span class="proc-num">04 /</span>
-            <h3 class="proc-name">Handoff</h3>
-            <p class="proc-desc">Everything documented. Your team can run it, extend it, and understand it without me in the room.</p>
+    <div id="pipeline-diagram">
+        <p class="pd-hint reveal">hover any stage to see what I build there</p>
+        <div class="pd-track">
+
+            <!-- Node 1: Sources -->
+            <div class="pd-node">
+                <div class="pd-circle"><span class="pd-abbr">src</span></div>
+                <div class="pd-node-label">Sources</div>
+                <div class="pd-tooltip pd-tooltip--left">
+                    <div class="pd-tt-title">raw data sources</div>
+                    <div class="pd-tt-body">Your data is scattered across spreadsheets, SaaS tools, and databases — inconsistent and untrusted.</div>
+                    <div class="pd-tt-tags">
+                        <span>Sheets</span><span>Stripe</span><span>HubSpot</span><span>Postgres</span><span>APIs</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pd-conn"><div class="pd-conn-line"><div class="pd-dot"></div><div class="pd-dot"></div></div></div>
+
+            <!-- Node 2: Ingest -->
+            <div class="pd-node">
+                <div class="pd-circle"><span class="pd-abbr">in</span></div>
+                <div class="pd-node-label">Ingest</div>
+                <div class="pd-tooltip">
+                    <div class="pd-tt-title">data ingestion</div>
+                    <div class="pd-tt-body">Automated connectors pull every source into your warehouse on a schedule. No more manual exports.</div>
+                    <div class="pd-tt-tags">
+                        <span>Fivetran</span><span>Airbyte</span><span>Custom ETL</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pd-conn"><div class="pd-conn-line"><div class="pd-dot"></div><div class="pd-dot"></div></div></div>
+
+            <!-- Node 3: Transform -->
+            <div class="pd-node">
+                <div class="pd-circle"><span class="pd-abbr">dbt</span></div>
+                <div class="pd-node-label">Transform</div>
+                <div class="pd-tooltip">
+                    <div class="pd-tt-title">transformation</div>
+                    <div class="pd-tt-body">dbt models clean, join, and reshape raw data into reliable metrics. Staging → mart layer. Tested and documented.</div>
+                    <div class="pd-tt-tags">
+                        <span>dbt core</span><span>SQL</span><span>Python</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pd-conn"><div class="pd-conn-line"><div class="pd-dot"></div><div class="pd-dot"></div></div></div>
+
+            <!-- Node 4: Warehouse -->
+            <div class="pd-node">
+                <div class="pd-circle"><span class="pd-abbr">wh</span></div>
+                <div class="pd-node-label">Warehouse</div>
+                <div class="pd-tooltip">
+                    <div class="pd-tt-title">data warehouse</div>
+                    <div class="pd-tt-body">A single source of truth. Every number traceable to its source. Query it, trust it, build on it.</div>
+                    <div class="pd-tt-tags">
+                        <span>Snowflake</span><span>BigQuery</span><span>Redshift</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pd-conn"><div class="pd-conn-line"><div class="pd-dot"></div><div class="pd-dot"></div></div></div>
+
+            <!-- Node 5: Visualize -->
+            <div class="pd-node">
+                <div class="pd-circle"><span class="pd-abbr">viz</span></div>
+                <div class="pd-node-label">Visualize</div>
+                <div class="pd-tooltip pd-tooltip--right">
+                    <div class="pd-tt-title">visualisation</div>
+                    <div class="pd-tt-body">Dashboards your team actually opens. KPIs front and center, refreshed automatically, built to last.</div>
+                    <div class="pd-tt-tags">
+                        <span>Power BI</span><span>Tableau</span><span>Looker</span><span>Metabase</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -1713,6 +1911,33 @@ const statsWatcher = new IntersectionObserver(entries => {
 }, { threshold: 0.5 });
 
 document.querySelectorAll('.stat-num[data-target]').forEach(el => statsWatcher.observe(el));
+
+
+/* ─────────────────────────────────────────────────
+   PIPELINE DIAGRAM  —  stagger reveal + particles
+───────────────────────────────────────────────── */
+(function () {
+    const diagram = document.getElementById('pipeline-diagram');
+    if (!diagram) return;
+
+    /* Stagger each direct child of pd-track */
+    diagram.querySelectorAll('.pd-track > *').forEach((el, i) => {
+        el.style.transitionDelay = (i * 90) + 'ms';
+    });
+
+    /* Stagger particle animation delays across connectors */
+    diagram.querySelectorAll('.pd-conn').forEach((conn, ci) => {
+        conn.querySelectorAll('.pd-dot').forEach((dot, di) => {
+            dot.style.animationDelay = (ci * 0.45 + di * 1.1) + 's';
+        });
+    });
+
+    new IntersectionObserver(([e]) => {
+        if (e.isIntersecting) {
+            diagram.classList.add('active');
+        }
+    }, { threshold: 0.25 }).observe(diagram);
+})();
 </script>
 
 </body>
