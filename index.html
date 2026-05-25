@@ -541,179 +541,228 @@
         .proj-card:hover .proj-link { gap: 11px; }
 
         /* ─────────────────────────────────────────
-           05 — PIPELINE DIAGRAM
+           05 — PIPELINE DIAGRAM  v2
         ───────────────────────────────────────── */
         .pd-hint {
             font-size: 11px;
             color: var(--text-muted);
-            letter-spacing: 0.06em;
+            letter-spacing: 0.05em;
             font-style: italic;
             margin-bottom: 52px;
+            text-align: center;
         }
 
         .pd-track {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             justify-content: center;
-            padding-bottom: 160px; /* room for tallest tooltip */
+            padding-bottom: 210px;
+            position: relative;
         }
 
-        /* nodes + connectors start hidden, revealed on .active */
+        /* reveal on .active */
         .pd-node, .pd-conn {
             opacity: 0;
-            transform: translateY(14px);
-            transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
+            transform: translateY(16px);
+            transition: opacity 0.55s var(--ease), transform 0.55s var(--ease);
         }
 
         #pipeline-diagram.active .pd-node,
         #pipeline-diagram.active .pd-conn { opacity: 1; transform: translateY(0); }
 
-        /* NODES */
+        /* ——— NODE CARDS ——— */
         .pd-node {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
             position: relative;
             cursor: default;
-            min-width: 80px;
+            flex-shrink: 0;
+            width: 104px;
             z-index: 2;
         }
 
-        .pd-circle {
-            width: 70px; height: 70px;
-            border-radius: 50%;
-            border: 1.5px solid var(--border-2);
+        .pd-card {
+            border: 1px solid var(--border);
+            border-top: 3px solid var(--nc, var(--border-2));
             background: var(--surface);
+            transition:
+                border-color 0.28s ease,
+                box-shadow   0.28s ease,
+                transform    0.32s var(--ease);
+        }
+
+        .pd-node:hover .pd-card {
+            border-color: var(--nc, var(--border-2));
+            box-shadow: 0 0 0 3px var(--nc-a, rgba(0,0,0,0.05)),
+                        0 12px 32px var(--nc-a, rgba(0,0,0,0.05));
+            transform: translateY(-5px);
+        }
+
+        .pd-card-icon {
+            padding: 18px 12px 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease, background 0.25s ease;
+            background: var(--surface-2);
+            transition: background 0.28s ease;
         }
 
-        .pd-node:hover .pd-circle {
-            border-color: var(--keyword);
-            box-shadow: 0 0 0 5px rgba(26, 115, 232, 0.1);
-            transform: scale(1.08);
-            background: #f0f5ff;
+        .pd-node:hover .pd-card-icon { background: var(--nc-a, var(--surface-2)); }
+
+        .pd-card-abbr {
+            font-size: 15px;
+            font-weight: 600;
+            font-style: italic;
+            color: var(--nc, var(--text-dim));
+            letter-spacing: 0.04em;
+            transition: transform 0.28s var(--ease);
         }
 
-        .pd-abbr {
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-dim);
-            letter-spacing: 0.06em;
-            transition: color 0.25s ease;
-        }
+        .pd-node:hover .pd-card-abbr { transform: scale(1.1); }
 
-        .pd-node:hover .pd-abbr { color: var(--keyword); }
-
-        .pd-node-label {
-            font-size: 10px;
-            letter-spacing: 0.12em;
+        .pd-card-foot {
+            padding: 7px 10px;
+            border-top: 1px solid var(--border);
+            font-size: 9px;
+            letter-spacing: 0.14em;
             text-transform: uppercase;
-            color: var(--text-muted);
-            transition: color 0.25s ease;
+            color: var(--text-dim);
             text-align: center;
-            white-space: nowrap;
+            transition: color 0.28s ease;
         }
 
-        .pd-node:hover .pd-node-label { color: var(--text-dim); }
+        .pd-node:hover .pd-card-foot { color: var(--nc, var(--text-dim)); }
 
-        /* CONNECTORS */
+        /* pulse ring on hover */
+        .pd-card::after {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 2px;
+            border: 1px solid var(--nc, transparent);
+            opacity: 0;
+            transform: scale(1.04);
+            transition: opacity 0.28s ease, transform 0.28s ease;
+            pointer-events: none;
+        }
+
+        .pd-node:hover .pd-card::after { opacity: 0.35; transform: scale(1); }
+
+        /* ——— CONNECTORS ——— */
         .pd-conn {
             flex: 1;
-            display: flex;
-            align-items: center;
-            height: 70px;
-            min-width: 44px;
-            z-index: 1;
-        }
-
-        .pd-conn-line {
-            width: 100%;
-            height: 1px;
-            background: var(--border-2);
+            min-width: 36px;
+            height: 2px;
             position: relative;
-            overflow: visible;
+            background: var(--border);
+            z-index: 1;
+            overflow: hidden;
         }
 
-        .pd-dot {
+        /* data packet rectangles */
+        .pd-pkt {
             position: absolute;
-            width: 6px; height: 6px;
-            border-radius: 50%;
-            background: var(--keyword);
-            top: -2.5px;
-            left: 0;
+            height: 100%;
+            border-radius: 1px;
+            background: var(--pc, var(--keyword));
             opacity: 0;
+            top: 0;
+            left: -20px;
         }
 
-        #pipeline-diagram.active .pd-dot {
-            animation: pd-flow 2.2s ease-in-out infinite;
+        #pipeline-diagram.active .pd-pkt {
+            animation: pkt-stream var(--pd, 2.2s) ease-in-out var(--dd, 0s) infinite;
         }
 
-        @keyframes pd-flow {
-            0%   { left: 0%;   opacity: 0; }
-            8%   {             opacity: 1; }
-            92%  {             opacity: 1; }
-            100% { left: 100%; opacity: 0; }
+        @keyframes pkt-stream {
+            0%   { left: -20px;         opacity: 0;    }
+            5%   {                       opacity: 0.9;  }
+            95%  {                       opacity: 0.9;  }
+            100% { left: calc(100% + 8px); opacity: 0; }
         }
 
-        /* TOOLTIPS */
+        /* ——— TOOLTIPS ——— */
         .pd-tooltip {
             position: absolute;
-            top: calc(100% + 20px);
+            top: calc(100% + 18px);
             left: 50%;
-            transform: translateX(-50%) translateY(8px);
-            width: 210px;
+            transform: translateX(-50%) translateY(10px) scale(0.96);
+            transform-origin: top center;
+            width: 218px;
             background: var(--surface);
-            border: 1px solid var(--border-2);
-            padding: 18px 20px;
+            border: 1px solid var(--border);
+            border-top: 3px solid var(--nc, var(--border-2));
+            overflow: hidden;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.2s ease, transform 0.2s ease;
-            z-index: 200;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+            transition: opacity 0.24s var(--ease), transform 0.24s var(--ease);
+            z-index: 300;
+            box-shadow: 0 10px 32px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        .pd-tooltip--left  { left: 0;    transform: translateY(8px); }
-        .pd-tooltip--right { left: auto; right: 0; transform: translateY(8px); }
+        .pd-tooltip--left  { left: 0;    transform:                    translateY(10px) scale(0.96); transform-origin: top left;  }
+        .pd-tooltip--right { left: auto; right: 0; transform:          translateY(10px) scale(0.96); transform-origin: top right; }
 
-        .pd-node:hover .pd-tooltip            { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
-        .pd-node:hover .pd-tooltip--left      { opacity: 1; transform: translateY(0); }
-        .pd-node:hover .pd-tooltip--right     { opacity: 1; transform: translateY(0); }
+        .pd-node:hover .pd-tooltip            { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); pointer-events: auto; }
+        .pd-node:hover .pd-tooltip--left      { opacity: 1; transform:                  translateY(0) scale(1); }
+        .pd-node:hover .pd-tooltip--right     { opacity: 1; transform:                  translateY(0) scale(1); }
+
+        /* animated fill bar */
+        .pd-tt-bar {
+            height: 2px;
+            background: var(--nc, var(--keyword));
+            width: 0%;
+            opacity: 0.55;
+            transition: width 0.7s var(--ease);
+        }
+
+        .pd-node:hover .pd-tt-bar { width: 100%; }
+
+        .pd-tt-inner { padding: 14px 16px 16px; }
 
         .pd-tt-title {
-            font-size: 10px;
-            letter-spacing: 0.12em;
+            font-size: 9px;
+            letter-spacing: 0.14em;
             text-transform: uppercase;
-            color: var(--keyword);
-            margin-bottom: 9px;
+            color: var(--nc, var(--keyword));
+            margin-bottom: 8px;
+            font-weight: 500;
         }
 
         .pd-tt-body {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-dim);
-            line-height: 1.75;
+            line-height: 1.8;
             margin-bottom: 13px;
         }
 
         .pd-tt-tags { display: flex; flex-wrap: wrap; gap: 5px; }
 
         .pd-tt-tags span {
-            font-size: 10px;
-            letter-spacing: 0.05em;
+            font-size: 9px;
+            letter-spacing: 0.06em;
             text-transform: uppercase;
             color: var(--text-muted);
             border: 1px solid var(--border);
             padding: 2px 7px;
+            opacity: 0;
+        }
+
+        /* stagger tags in on hover */
+        .pd-node:hover .pd-tt-tags span { animation: pd-tag 0.28s var(--ease) forwards; }
+        .pd-node:hover .pd-tt-tags span:nth-child(1) { animation-delay: 0.10s; }
+        .pd-node:hover .pd-tt-tags span:nth-child(2) { animation-delay: 0.17s; }
+        .pd-node:hover .pd-tt-tags span:nth-child(3) { animation-delay: 0.24s; }
+        .pd-node:hover .pd-tt-tags span:nth-child(4) { animation-delay: 0.31s; }
+        .pd-node:hover .pd-tt-tags span:nth-child(5) { animation-delay: 0.38s; }
+
+        @keyframes pd-tag {
+            from { opacity: 0; transform: translateX(-5px); }
+            to   { opacity: 1; transform: translateX(0); }
         }
 
         @media (max-width: 800px) {
             #pipeline-diagram { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-            .pd-track { padding-bottom: 20px; min-width: 580px; }
-            .pd-tooltip { display: none; }
-            .pd-hint    { display: none; }
+            .pd-track { padding-bottom: 24px; min-width: 640px; }
+            .pd-tooltip, .pd-hint { display: none; }
         }
 
         /* testimonials placeholder */
@@ -1401,85 +1450,129 @@
     <div class="sec-label reveal">data pipeline</div>
 
     <div id="pipeline-diagram">
-        <p class="pd-hint reveal">hover any stage to see what I build there</p>
+        <p class="pd-hint reveal">hover any stage to see what gets built there</p>
         <div class="pd-track">
 
-            <!-- Node 1: Sources -->
-            <div class="pd-node">
-                <div class="pd-circle"><span class="pd-abbr">src</span></div>
-                <div class="pd-node-label">Sources</div>
+            <!-- SOURCES  amber -->
+            <div class="pd-node" style="--nc:#F59E0B;--nc-a:rgba(245,158,11,0.1)">
+                <div class="pd-card">
+                    <div class="pd-card-icon"><span class="pd-card-abbr">src</span></div>
+                    <div class="pd-card-foot">Sources</div>
+                </div>
                 <div class="pd-tooltip pd-tooltip--left">
-                    <div class="pd-tt-title">raw data sources</div>
-                    <div class="pd-tt-body">Your data is scattered across spreadsheets, SaaS tools, and databases — inconsistent and untrusted.</div>
-                    <div class="pd-tt-tags">
-                        <span>Sheets</span><span>Stripe</span><span>HubSpot</span><span>Postgres</span><span>APIs</span>
+                    <div class="pd-tt-bar"></div>
+                    <div class="pd-tt-inner">
+                        <div class="pd-tt-title">raw data sources</div>
+                        <div class="pd-tt-body">Your data is scattered across spreadsheets, SaaS tools, and databases — inconsistent and untrusted.</div>
+                        <div class="pd-tt-tags">
+                            <span>Sheets</span><span>Stripe</span><span>HubSpot</span><span>Postgres</span><span>APIs</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="pd-conn"><div class="pd-conn-line"><div class="pd-dot"></div><div class="pd-dot"></div></div></div>
+            <!-- connector src to in  (amber packets) -->
+            <div class="pd-conn" style="--pc:#F59E0B">
+                <div class="pd-pkt" style="width:14px;--pd:2.1s;--dd:0.0s"></div>
+                <div class="pd-pkt" style="width:8px;--pd:2.1s;--dd:0.7s"></div>
+                <div class="pd-pkt" style="width:18px;--pd:2.1s;--dd:1.4s"></div>
+            </div>
 
-            <!-- Node 2: Ingest -->
-            <div class="pd-node">
-                <div class="pd-circle"><span class="pd-abbr">in</span></div>
-                <div class="pd-node-label">Ingest</div>
+            <!-- INGEST  purple -->
+            <div class="pd-node" style="--nc:#8B5CF6;--nc-a:rgba(139,92,246,0.1)">
+                <div class="pd-card">
+                    <div class="pd-card-icon"><span class="pd-card-abbr">in</span></div>
+                    <div class="pd-card-foot">Ingest</div>
+                </div>
                 <div class="pd-tooltip">
-                    <div class="pd-tt-title">data ingestion</div>
-                    <div class="pd-tt-body">Automated connectors pull every source into your warehouse on a schedule. No more manual exports.</div>
-                    <div class="pd-tt-tags">
-                        <span>Fivetran</span><span>Airbyte</span><span>Custom ETL</span>
+                    <div class="pd-tt-bar"></div>
+                    <div class="pd-tt-inner">
+                        <div class="pd-tt-title">data ingestion</div>
+                        <div class="pd-tt-body">Automated connectors pull every source into your warehouse on a reliable schedule. No manual exports.</div>
+                        <div class="pd-tt-tags">
+                            <span>Fivetran</span><span>Airbyte</span><span>Custom ETL</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="pd-conn"><div class="pd-conn-line"><div class="pd-dot"></div><div class="pd-dot"></div></div></div>
+            <!-- connector in to dbt  (purple packets) -->
+            <div class="pd-conn" style="--pc:#8B5CF6">
+                <div class="pd-pkt" style="width:10px;--pd:2.3s;--dd:0.2s"></div>
+                <div class="pd-pkt" style="width:16px;--pd:2.3s;--dd:0.97s"></div>
+                <div class="pd-pkt" style="width:7px;--pd:2.3s;--dd:1.6s"></div>
+            </div>
 
-            <!-- Node 3: Transform -->
-            <div class="pd-node">
-                <div class="pd-circle"><span class="pd-abbr">dbt</span></div>
-                <div class="pd-node-label">Transform</div>
+            <!-- TRANSFORM  blue -->
+            <div class="pd-node" style="--nc:#3B82F6;--nc-a:rgba(59,130,246,0.1)">
+                <div class="pd-card">
+                    <div class="pd-card-icon"><span class="pd-card-abbr">dbt</span></div>
+                    <div class="pd-card-foot">Transform</div>
+                </div>
                 <div class="pd-tooltip">
-                    <div class="pd-tt-title">transformation</div>
-                    <div class="pd-tt-body">dbt models clean, join, and reshape raw data into reliable metrics. Staging → mart layer. Tested and documented.</div>
-                    <div class="pd-tt-tags">
-                        <span>dbt core</span><span>SQL</span><span>Python</span>
+                    <div class="pd-tt-bar"></div>
+                    <div class="pd-tt-inner">
+                        <div class="pd-tt-title">transformation</div>
+                        <div class="pd-tt-body">dbt models clean, join, and reshape raw data into reliable metrics. Staging layer to mart layer. Tested and documented.</div>
+                        <div class="pd-tt-tags">
+                            <span>dbt core</span><span>SQL</span><span>Python</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="pd-conn"><div class="pd-conn-line"><div class="pd-dot"></div><div class="pd-dot"></div></div></div>
+            <!-- connector dbt to wh  (blue packets) -->
+            <div class="pd-conn" style="--pc:#3B82F6">
+                <div class="pd-pkt" style="width:18px;--pd:1.95s;--dd:0.4s"></div>
+                <div class="pd-pkt" style="width:11px;--pd:1.95s;--dd:1.05s"></div>
+                <div class="pd-pkt" style="width:14px;--pd:1.95s;--dd:1.7s"></div>
+            </div>
 
-            <!-- Node 4: Warehouse -->
-            <div class="pd-node">
-                <div class="pd-circle"><span class="pd-abbr">wh</span></div>
-                <div class="pd-node-label">Warehouse</div>
+            <!-- WAREHOUSE  emerald -->
+            <div class="pd-node" style="--nc:#059669;--nc-a:rgba(5,150,105,0.1)">
+                <div class="pd-card">
+                    <div class="pd-card-icon"><span class="pd-card-abbr">wh</span></div>
+                    <div class="pd-card-foot">Warehouse</div>
+                </div>
                 <div class="pd-tooltip">
-                    <div class="pd-tt-title">data warehouse</div>
-                    <div class="pd-tt-body">A single source of truth. Every number traceable to its source. Query it, trust it, build on it.</div>
-                    <div class="pd-tt-tags">
-                        <span>Snowflake</span><span>BigQuery</span><span>Redshift</span>
+                    <div class="pd-tt-bar"></div>
+                    <div class="pd-tt-inner">
+                        <div class="pd-tt-title">data warehouse</div>
+                        <div class="pd-tt-body">A single source of truth. Every number traceable to its source. Query it, trust it, build on it.</div>
+                        <div class="pd-tt-tags">
+                            <span>Snowflake</span><span>BigQuery</span><span>Redshift</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="pd-conn"><div class="pd-conn-line"><div class="pd-dot"></div><div class="pd-dot"></div></div></div>
+            <!-- connector wh to viz  (emerald packets) -->
+            <div class="pd-conn" style="--pc:#059669">
+                <div class="pd-pkt" style="width:12px;--pd:2.05s;--dd:0.15s"></div>
+                <div class="pd-pkt" style="width:7px;--pd:2.05s;--dd:0.85s"></div>
+                <div class="pd-pkt" style="width:16px;--pd:2.05s;--dd:1.55s"></div>
+            </div>
 
-            <!-- Node 5: Visualize -->
-            <div class="pd-node">
-                <div class="pd-circle"><span class="pd-abbr">viz</span></div>
-                <div class="pd-node-label">Visualize</div>
+            <!-- VISUALIZE  rose -->
+            <div class="pd-node" style="--nc:#EC4899;--nc-a:rgba(236,72,153,0.1)">
+                <div class="pd-card">
+                    <div class="pd-card-icon"><span class="pd-card-abbr">viz</span></div>
+                    <div class="pd-card-foot">Visualize</div>
+                </div>
                 <div class="pd-tooltip pd-tooltip--right">
-                    <div class="pd-tt-title">visualisation</div>
-                    <div class="pd-tt-body">Dashboards your team actually opens. KPIs front and center, refreshed automatically, built to last.</div>
-                    <div class="pd-tt-tags">
-                        <span>Power BI</span><span>Tableau</span><span>Looker</span><span>Metabase</span>
+                    <div class="pd-tt-bar"></div>
+                    <div class="pd-tt-inner">
+                        <div class="pd-tt-title">visualisation</div>
+                        <div class="pd-tt-body">Dashboards your team actually opens. KPIs front and center, refreshed automatically, built to last.</div>
+                        <div class="pd-tt-tags">
+                            <span>Power BI</span><span>Tableau</span><span>Looker</span><span>Metabase</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
         </div>
     </div>
-
     <div class="testi-placeholder reveal" style="margin-top:72px">
         <div class="testi-cmt">-- testimonials placeholder</div>
         <div class="testi-body">
@@ -1923,13 +2016,6 @@ document.querySelectorAll('.stat-num[data-target]').forEach(el => statsWatcher.o
     /* Stagger each direct child of pd-track */
     diagram.querySelectorAll('.pd-track > *').forEach((el, i) => {
         el.style.transitionDelay = (i * 90) + 'ms';
-    });
-
-    /* Stagger particle animation delays across connectors */
-    diagram.querySelectorAll('.pd-conn').forEach((conn, ci) => {
-        conn.querySelectorAll('.pd-dot').forEach((dot, di) => {
-            dot.style.animationDelay = (ci * 0.45 + di * 1.1) + 's';
-        });
     });
 
     new IntersectionObserver(([e]) => {
