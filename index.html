@@ -754,10 +754,189 @@
             .scroll-cue     { animation: none; }
             .avail-dot      { animation: none; }
             .proj-status-dot{ animation: none; }
+            .pipe-dot       { animation: none !important; }
+            #progress-rail  { transition: none; }
+        }
+
+        /* ─────────────────────────────────────────
+           CANVAS  —  hero graph background
+        ───────────────────────────────────────── */
+        #hero-canvas {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.22;
+        }
+
+        .editor-wrap { position: relative; z-index: 1; }
+        .scroll-cue  { position: relative; z-index: 1; }
+
+        /* ─────────────────────────────────────────
+           PIPE CONNECTORS  —  between sections
+        ───────────────────────────────────────── */
+        .pipe-connector {
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
+        }
+
+        .pipe-line {
+            width: 1px;
+            height: 0;
+            background: linear-gradient(to bottom, var(--border-2), var(--keyword));
+            transition: height 0.8s var(--ease);
+            position: relative;
+        }
+
+        .pipe-line.active { height: 52px; }
+
+        .pipe-dot {
+            position: absolute;
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: var(--keyword);
+            left: -2px;
+            top: 0;
+            opacity: 0;
+        }
+
+        .pipe-line.active .pipe-dot {
+            animation: dot-travel 1.5s ease-in-out infinite;
+            animation-delay: 0.85s;
+        }
+
+        @keyframes dot-travel {
+            0%   { top: 0;     opacity: 0; }
+            15%  {             opacity: 1; }
+            85%  {             opacity: 1; }
+            100% { top: 100%;  opacity: 0; }
+        }
+
+        /* ─────────────────────────────────────────
+           PROGRESS RAIL  —  scroll pipeline fill
+        ───────────────────────────────────────── */
+        #progress-rail {
+            position: fixed;
+            left: 0; top: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--keyword), var(--ok));
+            z-index: 1000;
+            opacity: 0.65;
+            height: 0%;
+            transition: height 0.08s linear;
+        }
+
+        /* ─────────────────────────────────────────
+           INSTALL LOG  —  stack section
+        ───────────────────────────────────────── */
+        .install-terminal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .install-chrome {
+            background: var(--surface-2);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 16px;
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .install-body { padding: 22px 28px 28px; font-size: 14px; }
+
+        .install-prompt-line {
+            color: var(--text-dim);
+            margin-bottom: 16px;
+        }
+
+        .pkg-line {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            padding: 2px 0;
+            opacity: 0;
+            transform: translateX(-6px);
+            transition: opacity 0.22s ease, transform 0.22s ease;
+        }
+
+        .pkg-line.show { opacity: 1; transform: translateX(0); }
+
+        .pkg-cat  { color: var(--comment); font-size: 12px; min-width: 130px; }
+        .pkg-name { color: var(--string); flex: 1; }
+        .pkg-ver  { color: var(--type); font-size: 12px; }
+        .pkg-tick { color: var(--ok); opacity: 0; transition: opacity 0.25s ease 0.18s; }
+        .pkg-line.show .pkg-tick { opacity: 1; }
+
+        .install-complete {
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--ok);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .install-complete.show { opacity: 1; }
+
+        /* ─────────────────────────────────────────
+           STATS COUNTER  —  before contact
+        ───────────────────────────────────────── */
+        .stats-wrap {
+            padding: 0 24px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            border: 1px solid var(--border);
+        }
+
+        .stat-item {
+            padding: 40px 28px;
+            border-right: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-item:last-child { border-right: none; }
+
+        .stat-num {
+            display: block;
+            font-family: var(--serif);
+            font-size: clamp(38px, 4vw, 58px);
+            font-weight: 300;
+            color: var(--keyword);
+            line-height: 1;
+            margin-bottom: 10px;
+            letter-spacing: -0.02em;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        @media (max-width: 800px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .stat-item:nth-child(2) { border-right: none; }
+            .stat-item:nth-child(3) { border-right: 1px solid var(--border); border-top: 1px solid var(--border); }
+            .stat-item:nth-child(4) { border-top: 1px solid var(--border); }
         }
     </style>
 </head>
 <body>
+
+<div id="progress-rail"></div>
 
 <!-- ══════════════════════════════════════════════════
      STATUS BAR  —  always visible, tracks scroll
@@ -779,6 +958,7 @@
      HERO  —  SQL QUERY THAT TYPES ITSELF
 ══════════════════════════════════════════════════ -->
 <section id="hero">
+    <canvas id="hero-canvas"></canvas>
     <div class="editor-wrap">
 
         <div class="editor-chrome">
@@ -827,7 +1007,7 @@
 <!-- ══════════════════════════════════════════════════
      01  DOCKER-COMPOSE UP  —  ABOUT
 ══════════════════════════════════════════════════ -->
-<hr class="divider">
+<div class="pipe-connector"><div class="pipe-line"><div class="pipe-dot"></div></div></div>
 <section id="init" class="pipe-section" data-status="01_init.sh">
 
     <div class="stage-hdr reveal">
@@ -877,7 +1057,7 @@
 <!-- ══════════════════════════════════════════════════
      02  PIP INSTALL  —  STACK
 ══════════════════════════════════════════════════ -->
-<hr class="divider">
+<div class="pipe-connector"><div class="pipe-line"><div class="pipe-dot"></div></div></div>
 <section id="install" class="pipe-section" data-status="02_requirements.txt">
 
     <div class="stage-hdr reveal">
@@ -888,41 +1068,21 @@
 
     <div class="sec-label reveal">stack</div>
 
-    <div class="stack-grid">
-        <div class="stack-group reveal d1">
-            <div class="stack-group-lbl">-- warehouse</div>
-            <span class="stack-item">Snowflake</span>
-            <span class="stack-item">BigQuery</span>
-            <span class="stack-item">Redshift</span>
+    <div class="install-terminal reveal" id="install-terminal">
+        <div class="install-chrome">
+            <span class="chrome-dot cd-r"></span>
+            <span class="chrome-dot cd-y"></span>
+            <span class="chrome-dot cd-g"></span>
+            <span style="margin-left:10px">requirements.txt</span>
         </div>
-        <div class="stack-group reveal d2">
-            <div class="stack-group-lbl">-- transformation</div>
-            <span class="stack-item">dbt (core + cloud)</span>
-            <span class="stack-item">SQL</span>
-            <span class="stack-item">Python</span>
-        </div>
-        <div class="stack-group reveal d3">
-            <div class="stack-group-lbl">-- orchestration</div>
-            <span class="stack-item">Apache Airflow</span>
-            <span class="stack-item">Prefect</span>
-        </div>
-        <div class="stack-group reveal d4">
-            <div class="stack-group-lbl">-- visualisation</div>
-            <span class="stack-item">Power BI</span>
-            <span class="stack-item">Tableau</span>
-            <span class="stack-item">Looker / Looker Studio</span>
-            <span class="stack-item">Metabase</span>
-        </div>
-        <div class="stack-group reveal d2">
-            <div class="stack-group-lbl">-- ingestion</div>
-            <span class="stack-item">Fivetran</span>
-            <span class="stack-item">Airbyte</span>
-            <span class="stack-item">Custom pipelines</span>
-        </div>
-        <div class="stack-group reveal d3">
-            <div class="stack-group-lbl">-- cloud</div>
-            <span class="stack-item">AWS</span>
-            <span class="stack-item">GCP <span class="cmt"># upskilling</span></span>
+        <div class="install-body">
+            <div class="install-prompt-line">
+                <span class="ok">$</span> pip install -r requirements.txt
+            </div>
+            <div id="pkg-lines"></div>
+            <div class="install-complete" id="install-complete">
+                <span class="ok">✓</span>&nbsp; 12 packages installed &middot; 0 errors &middot; 0 warnings
+            </div>
         </div>
     </div>
 
@@ -932,7 +1092,7 @@
 <!-- ══════════════════════════════════════════════════
      03  DBT RUN  —  SERVICES
 ══════════════════════════════════════════════════ -->
-<hr class="divider">
+<div class="pipe-connector"><div class="pipe-line"><div class="pipe-dot"></div></div></div>
 <section id="transform" class="pipe-section" data-status="03_services.sql">
 
     <div class="stage-hdr reveal">
@@ -1030,7 +1190,7 @@
 <!-- ══════════════════════════════════════════════════
      04  GIT PUSH  —  PROJECTS
 ══════════════════════════════════════════════════ -->
-<hr class="divider">
+<div class="pipe-connector"><div class="pipe-line"><div class="pipe-dot"></div></div></div>
 <section id="load" class="pipe-section" data-status="04_projects/README.md">
 
     <div class="stage-hdr reveal">
@@ -1088,7 +1248,7 @@
 <!-- ══════════════════════════════════════════════════
      05  BI RENDER  —  HOW I WORK + TESTIMONIALS
 ══════════════════════════════════════════════════ -->
-<hr class="divider">
+<div class="pipe-connector"><div class="pipe-line"><div class="pipe-dot"></div></div></div>
 <section id="render" class="pipe-section" data-status="05_how_i_work.md">
 
     <div class="stage-hdr reveal">
@@ -1133,9 +1293,34 @@
 
 
 <!-- ══════════════════════════════════════════════════
+     STATS
+══════════════════════════════════════════════════ -->
+<div class="pipe-connector"><div class="pipe-line"><div class="pipe-dot"></div></div></div>
+<div class="stats-wrap">
+    <div class="stats-grid">
+        <div class="stat-item reveal d1">
+            <span class="stat-num" data-target="3" data-suffix="+">0</span>
+            <span class="stat-label">years experience</span>
+        </div>
+        <div class="stat-item reveal d2">
+            <span class="stat-num" data-target="12">0</span>
+            <span class="stat-label">tools in stack</span>
+        </div>
+        <div class="stat-item reveal d3">
+            <span class="stat-num" data-target="3">0</span>
+            <span class="stat-label">cloud platforms</span>
+        </div>
+        <div class="stat-item reveal d4">
+            <span class="stat-num" data-target="500" data-prefix="$">0</span>
+            <span class="stat-label">starting engagement</span>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
      06  PIPELINE COMPLETE  —  CONTACT
 ══════════════════════════════════════════════════ -->
-<hr class="divider">
+<div class="pipe-connector"><div class="pipe-line"><div class="pipe-dot"></div></div></div>
 <section id="complete" class="pipe-section" data-status="06_contact.sh">
 
     <div class="stage-hdr reveal">
@@ -1209,66 +1394,79 @@
 ══════════════════════════════════════════════════ -->
 <script>
 /* ─────────────────────────────────────────────────
-   HERO  —  TYPING ANIMATION
+   HERO  —  CHARACTER-BY-CHARACTER TYPING
 ───────────────────────────────────────────────── */
 const LINES = [
-    { ln: 3, html: '<span class="kw">SELECT</span>  *' },
-    { ln: 4, html: '<span class="kw">FROM</span>    freelance_data_engineers' },
-    { ln: 5, html: '<span class="kw">WHERE</span>   builds_real_foundations <span class="kw">=</span> <span class="typ">TRUE</span>' },
-    { ln: 6, html: '<span class="kw">  AND</span>   worked_at <span class="kw">=</span> <span class="str">\'Goldman Sachs\'</span>' },
-    { ln: 7, html: '<span class="kw">  AND</span>   currently_building_at <span class="kw">=</span> <span class="str">\'AI startup\'</span>' },
-    { ln: 8, html: '<span class="kw">LIMIT</span>   <span class="typ">1</span>;' },
+    { ln: 3, plain: 'SELECT  *',
+              html:  '<span class="kw">SELECT</span>  *' },
+    { ln: 4, plain: 'FROM    freelance_data_engineers',
+              html:  '<span class="kw">FROM</span>    freelance_data_engineers' },
+    { ln: 5, plain: 'WHERE   builds_real_foundations = TRUE',
+              html:  '<span class="kw">WHERE</span>   builds_real_foundations <span class="kw">=</span> <span class="typ">TRUE</span>' },
+    { ln: 6, plain: "  AND   worked_at = 'Goldman Sachs'",
+              html:  '<span class="kw">  AND</span>   worked_at <span class="kw">=</span> <span class="str">\'Goldman Sachs\'</span>' },
+    { ln: 7, plain: "  AND   currently_building_at = 'AI startup'",
+              html:  '<span class="kw">  AND</span>   currently_building_at <span class="kw">=</span> <span class="str">\'AI startup\'</span>' },
+    { ln: 8, plain: 'LIMIT   1;',
+              html:  '<span class="kw">LIMIT</span>   <span class="typ">1</span>;' },
 ];
 
 const editorBody = document.getElementById('editor-body');
 let lineIdx = 0;
 
-/* Create cursor element */
 const cursorEl = document.createElement('span');
 cursorEl.id = 'cursor';
 
 function buildLine(lnNum) {
-    const row  = document.createElement('div');
+    const row    = document.createElement('div');
     row.className = 'q-line';
     const numEl  = document.createElement('span');
     numEl.className = 'q-ln';
     numEl.textContent = lnNum;
     const codeEl = document.createElement('span');
     codeEl.className = 'q-code';
-    codeEl.id = 'ql-' + lnNum;
     row.appendChild(numEl);
     row.appendChild(codeEl);
     return { row, codeEl };
 }
 
-function typeLines() {
-    if (lineIdx >= LINES.length) {
-        setTimeout(revealResults, 500);
-        return;
-    }
-
-    const { ln, html } = LINES[lineIdx];
-    const { row, codeEl } = buildLine(ln);
-    editorBody.appendChild(row);
-
-    /* Move cursor into this line while it "types" */
-    codeEl.appendChild(cursorEl);
-
-    setTimeout(() => {
+function typeChar(codeEl, plain, html, i, done) {
+    if (i > plain.length) {
         codeEl.innerHTML = html;
         codeEl.appendChild(cursorEl);
-        lineIdx++;
-        setTimeout(typeLines, lineIdx < LINES.length ? 90 : 400);
-    }, lineIdx === 0 ? 700 : 60);
+        done();
+        return;
+    }
+    codeEl.textContent = plain.slice(0, i);
+    codeEl.appendChild(cursorEl);
+    const delay = i === 0 ? 0 : 28 + Math.random() * 52;
+    setTimeout(() => typeChar(codeEl, plain, html, i + 1, done), delay);
+}
+
+function typeLines() {
+    if (lineIdx >= LINES.length) {
+        setTimeout(revealResults, 900);
+        return;
+    }
+    const { ln, plain, html } = LINES[lineIdx];
+    const { row, codeEl } = buildLine(ln);
+    editorBody.appendChild(row);
+    codeEl.appendChild(cursorEl);
+
+    const pause = lineIdx === 0 ? 650 : 100 + Math.random() * 80;
+    setTimeout(() => {
+        typeChar(codeEl, plain, html, 0, () => {
+            lineIdx++;
+            setTimeout(typeLines, 160 + Math.random() * 120);
+        });
+    }, pause);
 }
 
 function revealResults() {
     cursorEl.remove();
-
     const panel = document.getElementById('editor-results');
     panel.classList.add('open');
 
-    /* Animate query timer */
     let ms = 0;
     const timeEl = document.getElementById('q-time');
     const tick = setInterval(() => {
@@ -1281,18 +1479,16 @@ function revealResults() {
     setTimeout(() => document.getElementById('rr2').classList.add('show'), 560);
 }
 
-/* Kick off after brief pause so user sees the static comment first */
 setTimeout(() => {
-    /* Drop cursor into first line slot before typing starts */
-    const placeholder = buildLine(3);
-    editorBody.appendChild(placeholder.row);
-    placeholder.codeEl.appendChild(cursorEl);
+    const ph = buildLine(3);
+    editorBody.appendChild(ph.row);
+    ph.codeEl.appendChild(cursorEl);
     setTimeout(typeLines, 600);
 }, 200);
 
 
 /* ─────────────────────────────────────────────────
-   SMOOTH SCROLL HELPER
+   SMOOTH SCROLL
 ───────────────────────────────────────────────── */
 function goTo(id) {
     const el = document.getElementById(id);
@@ -1301,16 +1497,14 @@ function goTo(id) {
 
 
 /* ─────────────────────────────────────────────────
-   STATUS BAR  —  tracks current section
+   STATUS BAR  —  section tracker
 ───────────────────────────────────────────────── */
 const statusFile = document.getElementById('status-file');
 const sectionEls = document.querySelectorAll('[data-status]');
 
 const sectionWatcher = new IntersectionObserver(entries => {
     entries.forEach(e => {
-        if (e.isIntersecting) {
-            statusFile.textContent = e.target.dataset.status;
-        }
+        if (e.isIntersecting) statusFile.textContent = e.target.dataset.status;
     });
 }, { threshold: 0.25 });
 
@@ -1318,7 +1512,7 @@ sectionEls.forEach(s => sectionWatcher.observe(s));
 
 
 /* ─────────────────────────────────────────────────
-   SCROLL REVEAL
+   SCROLL REVEAL + PIPE CONNECTORS
 ───────────────────────────────────────────────── */
 const revealEls = document.querySelectorAll('.reveal, .line-draw');
 
@@ -1333,25 +1527,192 @@ const revealWatcher = new IntersectionObserver(entries => {
 
 revealEls.forEach(el => revealWatcher.observe(el));
 
+const pipeWatcher = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if (e.isIntersecting) {
+            const line = e.target.querySelector('.pipe-line');
+            if (line) line.classList.add('active');
+            pipeWatcher.unobserve(e.target);
+        }
+    });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('.pipe-connector').forEach(el => pipeWatcher.observe(el));
+
 
 /* ─────────────────────────────────────────────────
-   SERVICES TABLE  —  expand / collapse rows
+   SERVICES TABLE  —  expand / collapse
 ───────────────────────────────────────────────── */
 function toggleSvc(row) {
     const detail = row.nextElementSibling;
     const isOpen = row.classList.contains('open');
-
-    /* Collapse all */
     document.querySelectorAll('.svc-row.open').forEach(r => {
         r.classList.remove('open');
         r.nextElementSibling.style.display = 'none';
     });
-
     if (!isOpen) {
         row.classList.add('open');
         detail.style.display = 'table-row';
     }
 }
+
+
+/* ─────────────────────────────────────────────────
+   PROGRESS RAIL  —  scroll pipeline fill
+───────────────────────────────────────────────── */
+const rail = document.getElementById('progress-rail');
+window.addEventListener('scroll', () => {
+    const pct = (scrollY / (document.body.scrollHeight - innerHeight)) * 100;
+    rail.style.height = Math.min(pct, 100) + '%';
+}, { passive: true });
+
+
+/* ─────────────────────────────────────────────────
+   CANVAS  —  floating node graph in hero
+───────────────────────────────────────────────── */
+(function () {
+    const canvas = document.getElementById('hero-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const nodes = [];
+    const N = 28, MAX_D = 155;
+    let W, H, raf;
+
+    function resize() {
+        W = canvas.width  = canvas.offsetWidth;
+        H = canvas.height = canvas.offsetHeight;
+        nodes.length = 0;
+        for (let i = 0; i < N; i++) nodes.push({
+            x: Math.random() * W,  y: Math.random() * H,
+            vx: (Math.random() - 0.5) * 0.35,
+            vy: (Math.random() - 0.5) * 0.35,
+            r:  Math.random() * 1.2 + 0.5
+        });
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        for (let i = 0; i < N; i++) {
+            for (let j = i + 1; j < N; j++) {
+                const dx = nodes[i].x - nodes[j].x;
+                const dy = nodes[i].y - nodes[j].y;
+                const d  = Math.sqrt(dx * dx + dy * dy);
+                if (d < MAX_D) {
+                    ctx.globalAlpha = (1 - d / MAX_D) * 0.5;
+                    ctx.strokeStyle = '#B0AA9F';
+                    ctx.lineWidth   = 0.6;
+                    ctx.beginPath();
+                    ctx.moveTo(nodes[i].x, nodes[i].y);
+                    ctx.lineTo(nodes[j].x, nodes[j].y);
+                    ctx.stroke();
+                }
+            }
+        }
+        ctx.globalAlpha = 0.65;
+        ctx.fillStyle   = '#A8A29E';
+        nodes.forEach(n => {
+            ctx.beginPath();
+            ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+            ctx.fill();
+            n.x += n.vx;  n.y += n.vy;
+            if (n.x < 0 || n.x > W) n.vx *= -1;
+            if (n.y < 0 || n.y > H) n.vy *= -1;
+        });
+        ctx.globalAlpha = 1;
+        raf = requestAnimationFrame(draw);
+    }
+
+    resize();
+    draw();
+    window.addEventListener('resize', resize);
+
+    new IntersectionObserver(([e]) => {
+        if (!e.isIntersecting && raf) { cancelAnimationFrame(raf); raf = null; }
+        else if (e.isIntersecting  && !raf) draw();
+    }, { threshold: 0 }).observe(canvas.closest('section'));
+})();
+
+
+/* ─────────────────────────────────────────────────
+   INSTALL LOG  —  stream packages as section enters
+───────────────────────────────────────────────── */
+const PACKAGES = [
+    { cat: '-- warehouse',      name: 'snowflake-connector-python', ver: '3.6.0'   },
+    { cat: '-- warehouse',      name: 'google-cloud-bigquery',      ver: '3.13.0'  },
+    { cat: '-- warehouse',      name: 'amazon-redshift-connector',  ver: '2.1.3'   },
+    { cat: '-- transformation', name: 'dbt-core',                   ver: '1.8.2'   },
+    { cat: '-- transformation', name: 'dbt-snowflake',              ver: '1.8.0'   },
+    { cat: '-- orchestration',  name: 'apache-airflow',             ver: '2.9.1'   },
+    { cat: '-- orchestration',  name: 'prefect',                    ver: '3.0.0'   },
+    { cat: '-- ingestion',      name: 'fivetran-connector-sdk',     ver: '0.11.3'  },
+    { cat: '-- ingestion',      name: 'airbyte-cdk',                ver: '3.4.0'   },
+    { cat: '-- visualisation',  name: 'powerbi-client',             ver: '1.2.0'   },
+    { cat: '-- visualisation',  name: 'tableau-api-lib',            ver: '0.1.27'  },
+    { cat: '-- cloud',          name: 'boto3',                      ver: '1.34.0'  },
+];
+
+let installStarted = false;
+const installEl      = document.getElementById('install-terminal');
+const pkgLinesEl     = document.getElementById('pkg-lines');
+const installDoneEl  = document.getElementById('install-complete');
+
+function streamPackages() {
+    if (!pkgLinesEl) return;
+    PACKAGES.forEach((pkg, i) => {
+        const line = document.createElement('div');
+        line.className = 'pkg-line';
+        line.innerHTML =
+            `<span class="pkg-cat">${pkg.cat}</span>` +
+            `<span class="pkg-name">${pkg.name}</span>` +
+            `<span class="pkg-ver">==${pkg.ver}</span>` +
+            `<span class="pkg-tick">✓</span>`;
+        pkgLinesEl.appendChild(line);
+        setTimeout(() => line.classList.add('show'), i * 140);
+    });
+    setTimeout(() => {
+        if (installDoneEl) installDoneEl.classList.add('show');
+    }, PACKAGES.length * 140 + 320);
+}
+
+if (installEl) {
+    new IntersectionObserver(([e]) => {
+        if (e.isIntersecting && !installStarted) {
+            installStarted = true;
+            setTimeout(streamPackages, 420);
+        }
+    }, { threshold: 0.2 }).observe(installEl);
+}
+
+
+/* ─────────────────────────────────────────────────
+   STATS COUNTER  —  count up on scroll reveal
+───────────────────────────────────────────────── */
+function countUp(el, target, prefix, suffix, duration) {
+    const start = performance.now();
+    (function step(now) {
+        const t    = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - t, 3);
+        el.textContent = (prefix || '') + Math.round(ease * target) + (suffix || '');
+        if (t < 1) requestAnimationFrame(step);
+    })(start);
+}
+
+const statsWatcher = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if (e.isIntersecting) {
+            countUp(
+                e.target,
+                parseInt(e.target.dataset.target),
+                e.target.dataset.prefix || '',
+                e.target.dataset.suffix || '',
+                1400
+            );
+            statsWatcher.unobserve(e.target);
+        }
+    });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('.stat-num[data-target]').forEach(el => statsWatcher.observe(el));
 </script>
 
 </body>
