@@ -1122,6 +1122,270 @@
             .stat-item:nth-child(3) { border-right: 1px solid var(--border); border-top: 1px solid var(--border); }
             .stat-item:nth-child(4) { border-top: 1px solid var(--border); }
         }
+
+        /* ─────────────────────────────────────────
+           MOBILE  ≤ 600px  (phone)
+        ───────────────────────────────────────── */
+        /* ─────────────────────────────────────────
+           ARCHITECTURE DIAGRAM
+        ───────────────────────────────────────── */
+        .arch-wrap {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .arch-bar {
+            background: var(--surface-2);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .arch-bar-hint {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-style: italic;
+            letter-spacing: 0.05em;
+        }
+
+        .arch-diag {
+            padding: 28px 24px 32px;
+            position: relative;
+        }
+
+        .arch-layer {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 14px 16px;
+            background: var(--lca, transparent);
+            border-radius: 2px;
+            transition: opacity 0.18s ease;
+        }
+
+        .al-lbl {
+            font-size: 9px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--lc, var(--text-muted));
+            min-width: 74px;
+            padding-top: 7px;
+            flex-shrink: 0;
+            opacity: 0.7;
+        }
+
+        .al-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            flex: 1;
+        }
+
+        .tool-badge {
+            font-family: var(--mono);
+            font-size: 12px;
+            letter-spacing: 0.02em;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+            padding: 5px 11px;
+            border-radius: 2px;
+            cursor: pointer;
+            user-select: none;
+            background: var(--surface);
+            transition: border-color 0.18s ease, color 0.18s ease,
+                        opacity 0.2s ease, background 0.18s ease;
+        }
+
+        .tool-badge:hover,
+        .tool-badge.is-active {
+            border-color: var(--lc, var(--border-2));
+            color: var(--text);
+            background: var(--lca, var(--surface-2));
+        }
+
+        .tool-badge--chain {
+            color: var(--text-muted);
+            font-style: italic;
+            border-style: dashed;
+        }
+
+        .tool-badge--orch {
+            font-size: 11px;
+            padding: 3px 9px;
+        }
+
+        .arch-diag.has-hover .tool-badge:not(.is-active) { opacity: 0.22; }
+        .arch-diag.has-hover .arch-conn:not(.is-active)  { opacity: 0.18; }
+
+        .arch-conn { padding-left: 90px; }
+
+        .ac-stem {
+            width: 1px;
+            height: 36px;
+            background: var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ac-pkt {
+            position: absolute;
+            width: 3px; height: 10px;
+            background: var(--keyword);
+            border-radius: 2px;
+            left: -1px; top: -12px;
+            opacity: 0;
+            animation: ac-flow 2s ease-in-out infinite;
+        }
+
+        @keyframes ac-flow {
+            0%   { top: -12px; opacity: 0;    }
+            12%  {              opacity: 0.85; }
+            88%  {              opacity: 0.85; }
+            100% { top: 48px;   opacity: 0;    }
+        }
+
+        .orch-group {
+            border: 1.5px dashed var(--border-2);
+            border-radius: 4px;
+            padding: 4px 0 8px;
+            position: relative;
+        }
+
+        .orch-lbl {
+            position: absolute;
+            top: -10px; right: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            color: var(--text-muted);
+            background: var(--surface);
+            padding: 0 8px;
+            letter-spacing: 0.04em;
+        }
+
+        .arch-tt {
+            position: fixed;
+            z-index: 500;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            padding: 11px 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.16s ease;
+            width: 210px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+
+        .arch-tt.show { opacity: 1; }
+
+        .arch-tt-layer {
+            font-size: 9px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--keyword);
+            margin-bottom: 5px;
+        }
+
+        .arch-tt-name {
+            font-size: 13px;
+            color: var(--text);
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .arch-tt-desc {
+            font-size: 11px;
+            color: var(--text-dim);
+            line-height: 1.65;
+        }
+
+        .pkg-line.layer-hl {
+            background: rgba(250, 220, 60, 0.22);
+            border-radius: 2px;
+        }
+
+        @media (max-width: 800px) {
+            .arch-diag     { padding: 20px 16px 24px; }
+            .al-lbl        { min-width: 58px; font-size: 8px; }
+            .arch-conn     { padding-left: 74px; }
+            .arch-bar-hint { display: none; }
+            .orch-lbl      { font-size: 9px; }
+        }
+
+        /* ─────────────────────────────────────────
+           MOBILE  ≤ 600px  (phone)
+        ───────────────────────────────────────── */
+        @media (max-width: 600px) {
+            /* Status bar: hide encoding labels to save space */
+            #status-bar .s-right { display: none; }
+            #status-bar          { font-size: 10px; padding: 0 12px; }
+
+            /* Hero editor: scroll for long SQL lines */
+            .editor-body { padding: 16px 14px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .q-code      { font-size: 13px; white-space: nowrap; }
+            .rr-tag      { display: none; }
+
+            /* Pipe sections */
+            .pipe-section { padding: 52px 16px 64px; }
+            .stage-hdr    { margin-bottom: 40px; }
+            .stage-cmd    { font-size: 13px; word-break: break-all; }
+
+            /* About */
+            .about-headline { font-size: clamp(26px, 9vw, 40px); }
+            .about-body     { font-size: 15px; }
+            .exp-block      { padding: 16px; font-size: 13px; }
+
+            /* Services: hide timeline column, keep service + price + expand */
+            .svc-query                         { font-size: 13px; }
+            .svc-table th:nth-child(3),
+            .svc-table td:nth-child(3)         { display: none; }
+            .svc-table th, .svc-table td       { padding: 14px 10px; }
+            .svc-name                          { font-size: 14px; }
+
+            /* Stack terminal: horizontal scroll, tighter category labels */
+            .install-body { padding: 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .pkg-cat      { min-width: 80px; font-size: 11px; }
+            .pkg-line     { gap: 8px; }
+
+            /* Projects */
+            .proj-card { padding: 24px 18px; }
+            .proj-name { font-size: 22px; }
+
+            /* Stats */
+            .stat-item { padding: 24px 14px; }
+
+            /* Contact */
+            .contact-headline { font-size: clamp(24px, 8.5vw, 40px); }
+            .form-submit      { width: 100%; }
+
+            /* Testimonials */
+            .testi-placeholder { padding: 32px 20px; }
+            .testi-body        { font-size: 20px; }
+
+            /* Architecture on mobile */
+            .arch-layer { flex-direction: column; gap: 6px; padding: 10px 8px; }
+            .al-lbl     { padding-top: 0; min-width: 0; }
+            .arch-conn  { padding-left: 16px; }
+            .orch-lbl   {
+                position: static; background: none; font-size: 9px;
+                padding: 4px 8px 0; margin-bottom: -2px;
+                display: flex; flex-wrap: wrap; gap: 4px;
+            }
+            .orch-group { padding: 4px 0 6px; }
+            .arch-tt    {
+                position: fixed !important;
+                left: 16px !important; right: 16px !important;
+                width: auto !important; top: auto !important;
+                bottom: 48px !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1280,13 +1544,141 @@
 
 
 <!-- ══════════════════════════════════════════════════
-     03  DBT RUN  —  SERVICES
+     03  DRAW  —  ARCHITECTURE
 ══════════════════════════════════════════════════ -->
 <div class="pipe-connector"><div class="pipe-line"><div class="pipe-dot"></div></div></div>
-<section id="transform" class="pipe-section" data-status="03_services.sql">
+<section id="arch" class="pipe-section" data-status="03_architecture.svg">
 
     <div class="stage-hdr reveal">
         <span class="stage-num">[ 03 ]</span>
+        <span class="stage-cmd"><span class="prompt">$</span>draw --output=architecture.svg --layers=6</span>
+        <span class="stage-dur dim">6 layers &middot; 19 tools &middot; 0 errors</span>
+    </div>
+
+    <div class="sec-label reveal">architecture</div>
+
+    <div class="arch-wrap reveal" id="arch-wrap">
+        <div class="arch-bar">
+            <span class="cmt">// architecture.svg &mdash; data pipeline overview</span>
+            <span class="arch-bar-hint">hover any tool to trace its path</span>
+        </div>
+
+        <div class="arch-diag" id="arch-diag">
+
+            <div class="arch-tt" id="arch-tt">
+                <div class="arch-tt-layer"></div>
+                <div class="arch-tt-name"></div>
+                <div class="arch-tt-desc"></div>
+            </div>
+
+            <!-- SOURCE -->
+            <div class="arch-layer" data-layer="source" style="--lc:#F59E0B;--lca:rgba(245,158,11,0.07)">
+                <span class="al-lbl">source</span>
+                <div class="al-tools">
+                    <span class="tool-badge" data-tool="Postgres"      data-layer="source" data-desc="Relational DB · primary transactional source">Postgres</span>
+                    <span class="tool-badge" data-tool="Stripe"        data-layer="source" data-desc="Payments API · billing &amp; revenue events">Stripe</span>
+                    <span class="tool-badge" data-tool="HubSpot"       data-layer="source" data-desc="CRM · sales pipeline &amp; contact data">HubSpot</span>
+                    <span class="tool-badge" data-tool="Google Sheets" data-layer="source" data-desc="Spreadsheets · ops data &amp; manual inputs">Google Sheets</span>
+                    <span class="tool-badge" data-tool="REST APIs"     data-layer="source" data-desc="HTTP APIs · custom third-party integrations">REST APIs</span>
+                </div>
+            </div>
+
+            <div class="arch-conn" data-layers="source,ingestion">
+                <div class="ac-stem"><div class="ac-pkt" style="animation-delay:0s"></div></div>
+            </div>
+
+            <!-- ORCHESTRATION WRAPPER -->
+            <div class="orch-group" id="orch-group">
+                <div class="orch-lbl">
+                    <span class="tool-badge tool-badge--orch" data-tool="Apache Airflow" data-layer="orchestration" data-desc="Workflow orchestration · DAG-based scheduling &amp; monitoring">Airflow</span>
+                    <span class="mut">&middot;</span>
+                    <span class="tool-badge tool-badge--orch" data-tool="Prefect" data-layer="orchestration" data-desc="Modern dataflow platform · Python-native, cloud or self-hosted">Prefect</span>
+                    <span class="mut">&mdash; orchestrated</span>
+                </div>
+
+                <!-- INGEST -->
+                <div class="arch-layer" data-layer="ingestion" style="--lc:#8B5CF6;--lca:rgba(139,92,246,0.07)">
+                    <span class="al-lbl">ingest</span>
+                    <div class="al-tools">
+                        <span class="tool-badge" data-tool="Fivetran"          data-layer="ingestion" data-desc="Managed ELT · 300+ pre-built source connectors">Fivetran</span>
+                        <span class="tool-badge" data-tool="Airbyte"           data-layer="ingestion" data-desc="Open-source ELT · fully customisable connectors">Airbyte</span>
+                        <span class="tool-badge" data-tool="Custom Python ETL" data-layer="ingestion" data-desc="Bespoke extraction · hand-rolled for edge-case sources">Custom Python ETL</span>
+                    </div>
+                </div>
+
+                <div class="arch-conn" data-layers="ingestion,storage">
+                    <div class="ac-stem"><div class="ac-pkt" style="animation-delay:0.35s"></div></div>
+                </div>
+
+                <!-- STORAGE -->
+                <div class="arch-layer" data-layer="storage" style="--lc:#3B82F6;--lca:rgba(59,130,246,0.07)">
+                    <span class="al-lbl">storage</span>
+                    <div class="al-tools">
+                        <span class="tool-badge" data-tool="AWS S3"     data-layer="storage" data-desc="Object storage · raw landing zone for AWS pipelines">AWS S3 (raw)</span>
+                        <span class="tool-badge" data-tool="GCS Bucket" data-layer="storage" data-desc="Object storage · raw landing zone for GCP pipelines">GCS Bucket (raw)</span>
+                    </div>
+                </div>
+
+                <div class="arch-conn" data-layers="storage,warehouse">
+                    <div class="ac-stem"><div class="ac-pkt" style="animation-delay:0.7s"></div></div>
+                </div>
+
+                <!-- WAREHOUSE -->
+                <div class="arch-layer" data-layer="warehouse" style="--lc:#059669;--lca:rgba(5,150,105,0.07)">
+                    <span class="al-lbl">warehouse</span>
+                    <div class="al-tools">
+                        <span class="tool-badge" data-tool="Snowflake" data-layer="warehouse" data-desc="Cloud DW · separated storage/compute, fast at any scale">Snowflake</span>
+                        <span class="tool-badge" data-tool="BigQuery"  data-layer="warehouse" data-desc="Serverless DW · pay-per-query, native GCP integration">BigQuery</span>
+                        <span class="tool-badge" data-tool="Redshift"  data-layer="warehouse" data-desc="AWS DW · tight S3 integration, columnar storage">Redshift</span>
+                    </div>
+                </div>
+
+                <div class="arch-conn" data-layers="warehouse,transform">
+                    <div class="ac-stem"><div class="ac-pkt" style="animation-delay:1.05s"></div></div>
+                </div>
+
+                <!-- TRANSFORM -->
+                <div class="arch-layer" data-layer="transform" style="--lc:#1A73E8;--lca:rgba(26,115,232,0.07)">
+                    <span class="al-lbl">transform</span>
+                    <div class="al-tools">
+                        <span class="tool-badge"              data-tool="dbt Core"       data-layer="transform" data-desc="SQL-first transformation framework · version-controlled models">dbt Core</span>
+                        <span class="tool-badge tool-badge--chain" data-tool="staging models" data-layer="transform" data-desc="Staging layer · raw &rarr; cleaned, typed, renamed">→ staging models</span>
+                        <span class="tool-badge tool-badge--chain" data-tool="mart models"    data-layer="transform" data-desc="Mart layer · business-logic aggregations ready to serve">→ mart models</span>
+                        <span class="tool-badge tool-badge--chain" data-tool="tests + docs"   data-layer="transform" data-desc="Data quality checks + auto-generated documentation">→ tests + docs</span>
+                    </div>
+                </div>
+
+            </div><!-- /orch-group -->
+
+            <div class="arch-conn" data-layers="transform,viz">
+                <div class="ac-stem"><div class="ac-pkt" style="animation-delay:1.4s"></div></div>
+            </div>
+
+            <!-- VISUALISE -->
+            <div class="arch-layer" data-layer="viz" style="--lc:#EC4899;--lca:rgba(236,72,153,0.07)">
+                <span class="al-lbl">visualise</span>
+                <div class="al-tools">
+                    <span class="tool-badge" data-tool="Metabase"      data-layer="viz" data-desc="Self-serve BI · startup favourite, no SQL required">Metabase</span>
+                    <span class="tool-badge" data-tool="Power BI"      data-layer="viz" data-desc="Enterprise dashboards · DAX modelling, Microsoft ecosystem">Power BI</span>
+                    <span class="tool-badge" data-tool="Looker Studio" data-layer="viz" data-desc="Free GCP-native reporting · easy Sheets &amp; BigQuery integration">Looker Studio</span>
+                    <span class="tool-badge" data-tool="Tableau"       data-layer="viz" data-desc="Visual analytics · drag-and-drop data exploration">Tableau</span>
+                </div>
+            </div>
+
+        </div><!-- /arch-diag -->
+    </div><!-- /arch-wrap -->
+
+</section>
+
+
+<!-- ══════════════════════════════════════════════════
+     04  DBT RUN  —  SERVICES
+══════════════════════════════════════════════════ -->
+<div class="pipe-connector"><div class="pipe-line"><div class="pipe-dot"></div></div></div>
+<section id="transform" class="pipe-section" data-status="04_services.sql">
+
+    <div class="stage-hdr reveal">
+        <span class="stage-num">[ 04 ]</span>
         <span class="stage-cmd"><span class="prompt">$</span>dbt run --models staging.+ marts.+</span>
         <span class="stage-dur dim">4 models built &middot; 0 errors &middot; 0 warnings</span>
     </div>
@@ -1381,10 +1773,10 @@
      04  GIT PUSH  —  PROJECTS
 ══════════════════════════════════════════════════ -->
 <div class="pipe-connector"><div class="pipe-line"><div class="pipe-dot"></div></div></div>
-<section id="load" class="pipe-section" data-status="04_projects/README.md">
+<section id="load" class="pipe-section" data-status="05_projects/README.md">
 
     <div class="stage-hdr reveal">
-        <span class="stage-num">[ 04 ]</span>
+        <span class="stage-num">[ 05 ]</span>
         <span class="stage-cmd"><span class="prompt">$</span>git push origin main</span>
         <span class="stage-dur dim">2 objects pushed &middot; writing done</span>
     </div>
@@ -1435,152 +1827,6 @@
 </section>
 
 
-<!-- ══════════════════════════════════════════════════
-     05  BI RENDER  —  HOW I WORK + TESTIMONIALS
-══════════════════════════════════════════════════ -->
-<div class="pipe-connector"><div class="pipe-line"><div class="pipe-dot"></div></div></div>
-<section id="render" class="pipe-section" data-status="05_pipeline.svg">
-
-    <div class="stage-hdr reveal">
-        <span class="stage-num">[ 05 ]</span>
-        <span class="stage-cmd"><span class="prompt">$</span>bi render --output=pipeline.svg --animate</span>
-        <span class="stage-dur dim">5 nodes &middot; 4 edges &middot; 0 errors</span>
-    </div>
-
-    <div class="sec-label reveal">data pipeline</div>
-
-    <div id="pipeline-diagram">
-        <p class="pd-hint reveal">hover any stage to see what gets built there</p>
-        <div class="pd-track">
-
-            <!-- SOURCES  amber -->
-            <div class="pd-node" style="--nc:#F59E0B;--nc-a:rgba(245,158,11,0.1)">
-                <div class="pd-card">
-                    <div class="pd-card-icon"><span class="pd-card-abbr">src</span></div>
-                    <div class="pd-card-foot">Sources</div>
-                </div>
-                <div class="pd-tooltip pd-tooltip--left">
-                    <div class="pd-tt-bar"></div>
-                    <div class="pd-tt-inner">
-                        <div class="pd-tt-title">raw data sources</div>
-                        <div class="pd-tt-body">Your data is scattered across spreadsheets, SaaS tools, and databases — inconsistent and untrusted.</div>
-                        <div class="pd-tt-tags">
-                            <span>Sheets</span><span>Stripe</span><span>HubSpot</span><span>Postgres</span><span>APIs</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- connector src to in  (amber packets) -->
-            <div class="pd-conn" style="--pc:#F59E0B">
-                <div class="pd-pkt" style="width:14px;--pd:2.1s;--dd:0.0s"></div>
-                <div class="pd-pkt" style="width:8px;--pd:2.1s;--dd:0.7s"></div>
-                <div class="pd-pkt" style="width:18px;--pd:2.1s;--dd:1.4s"></div>
-            </div>
-
-            <!-- INGEST  purple -->
-            <div class="pd-node" style="--nc:#8B5CF6;--nc-a:rgba(139,92,246,0.1)">
-                <div class="pd-card">
-                    <div class="pd-card-icon"><span class="pd-card-abbr">in</span></div>
-                    <div class="pd-card-foot">Ingest</div>
-                </div>
-                <div class="pd-tooltip">
-                    <div class="pd-tt-bar"></div>
-                    <div class="pd-tt-inner">
-                        <div class="pd-tt-title">data ingestion</div>
-                        <div class="pd-tt-body">Automated connectors pull every source into your warehouse on a reliable schedule. No manual exports.</div>
-                        <div class="pd-tt-tags">
-                            <span>Fivetran</span><span>Airbyte</span><span>Custom ETL</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- connector in to dbt  (purple packets) -->
-            <div class="pd-conn" style="--pc:#8B5CF6">
-                <div class="pd-pkt" style="width:10px;--pd:2.3s;--dd:0.2s"></div>
-                <div class="pd-pkt" style="width:16px;--pd:2.3s;--dd:0.97s"></div>
-                <div class="pd-pkt" style="width:7px;--pd:2.3s;--dd:1.6s"></div>
-            </div>
-
-            <!-- TRANSFORM  blue -->
-            <div class="pd-node" style="--nc:#3B82F6;--nc-a:rgba(59,130,246,0.1)">
-                <div class="pd-card">
-                    <div class="pd-card-icon"><span class="pd-card-abbr">dbt</span></div>
-                    <div class="pd-card-foot">Transform</div>
-                </div>
-                <div class="pd-tooltip">
-                    <div class="pd-tt-bar"></div>
-                    <div class="pd-tt-inner">
-                        <div class="pd-tt-title">transformation</div>
-                        <div class="pd-tt-body">dbt models clean, join, and reshape raw data into reliable metrics. Staging layer to mart layer. Tested and documented.</div>
-                        <div class="pd-tt-tags">
-                            <span>dbt core</span><span>SQL</span><span>Python</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- connector dbt to wh  (blue packets) -->
-            <div class="pd-conn" style="--pc:#3B82F6">
-                <div class="pd-pkt" style="width:18px;--pd:1.95s;--dd:0.4s"></div>
-                <div class="pd-pkt" style="width:11px;--pd:1.95s;--dd:1.05s"></div>
-                <div class="pd-pkt" style="width:14px;--pd:1.95s;--dd:1.7s"></div>
-            </div>
-
-            <!-- WAREHOUSE  emerald -->
-            <div class="pd-node" style="--nc:#059669;--nc-a:rgba(5,150,105,0.1)">
-                <div class="pd-card">
-                    <div class="pd-card-icon"><span class="pd-card-abbr">wh</span></div>
-                    <div class="pd-card-foot">Warehouse</div>
-                </div>
-                <div class="pd-tooltip">
-                    <div class="pd-tt-bar"></div>
-                    <div class="pd-tt-inner">
-                        <div class="pd-tt-title">data warehouse</div>
-                        <div class="pd-tt-body">A single source of truth. Every number traceable to its source. Query it, trust it, build on it.</div>
-                        <div class="pd-tt-tags">
-                            <span>Snowflake</span><span>BigQuery</span><span>Redshift</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- connector wh to viz  (emerald packets) -->
-            <div class="pd-conn" style="--pc:#059669">
-                <div class="pd-pkt" style="width:12px;--pd:2.05s;--dd:0.15s"></div>
-                <div class="pd-pkt" style="width:7px;--pd:2.05s;--dd:0.85s"></div>
-                <div class="pd-pkt" style="width:16px;--pd:2.05s;--dd:1.55s"></div>
-            </div>
-
-            <!-- VISUALIZE  rose -->
-            <div class="pd-node" style="--nc:#EC4899;--nc-a:rgba(236,72,153,0.1)">
-                <div class="pd-card">
-                    <div class="pd-card-icon"><span class="pd-card-abbr">viz</span></div>
-                    <div class="pd-card-foot">Visualize</div>
-                </div>
-                <div class="pd-tooltip pd-tooltip--right">
-                    <div class="pd-tt-bar"></div>
-                    <div class="pd-tt-inner">
-                        <div class="pd-tt-title">visualisation</div>
-                        <div class="pd-tt-body">Dashboards your team actually opens. KPIs front and center, refreshed automatically, built to last.</div>
-                        <div class="pd-tt-tags">
-                            <span>Power BI</span><span>Tableau</span><span>Looker</span><span>Metabase</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-    <div class="testi-placeholder reveal" style="margin-top:72px">
-        <div class="testi-cmt">-- testimonials placeholder</div>
-        <div class="testi-body">
-            "Building trust with early clients now.<br>Testimonials coming soon — honesty over fake social proof."
-        </div>
-    </div>
-
-</section>
 
 
 <!-- ══════════════════════════════════════════════════
@@ -1952,6 +2198,7 @@ function streamPackages() {
     PACKAGES.forEach((pkg, i) => {
         const line = document.createElement('div');
         line.className = 'pkg-line';
+        line.dataset.layer = pkg.cat.replace('-- ', '');
         line.innerHTML =
             `<span class="pkg-cat">${pkg.cat}</span>` +
             `<span class="pkg-name">${pkg.name}</span>` +
@@ -2007,22 +2254,105 @@ document.querySelectorAll('.stat-num[data-target]').forEach(el => statsWatcher.o
 
 
 /* ─────────────────────────────────────────────────
-   PIPELINE DIAGRAM  —  stagger reveal + particles
+   ARCHITECTURE DIAGRAM  —  hover + pkg-line cross-link
 ───────────────────────────────────────────────── */
 (function () {
-    const diagram = document.getElementById('pipeline-diagram');
-    if (!diagram) return;
+    const diag = document.getElementById('arch-diag');
+    const tt   = document.getElementById('arch-tt');
+    if (!diag || !tt) return;
 
-    /* Stagger each direct child of pd-track */
-    diagram.querySelectorAll('.pd-track > *').forEach((el, i) => {
-        el.style.transitionDelay = (i * 90) + 'ms';
+    const ttLayer = tt.querySelector('.arch-tt-layer');
+    const ttName  = tt.querySelector('.arch-tt-name');
+    const ttDesc  = tt.querySelector('.arch-tt-desc');
+
+    /* map arch layer name → pkg-line data-layer value */
+    const layerToPkg = {
+        ingestion:      'ingestion',
+        storage:        'cloud',
+        warehouse:      'warehouse',
+        transform:      'transformation',
+        viz:            'visualisation',
+        orchestration:  'orchestration',
+    };
+
+    let activeEl = null;
+
+    function getLc(el) {
+        const layer = el.closest('.arch-layer');
+        return layer ? getComputedStyle(layer).getPropertyValue('--lc').trim() : '';
+    }
+
+    function positionTT(x, y) {
+        const vw = window.innerWidth;
+        let tx = x + 16;
+        if (tx + 220 > vw) tx = x - 226;
+        tt.style.left = Math.max(8, tx) + 'px';
+        tt.style.top  = Math.max(8, y - 8) + 'px';
+    }
+
+    function showTT(badge, x, y) {
+        ttLayer.textContent    = badge.dataset.layer || '';
+        ttName.textContent     = badge.dataset.tool  || '';
+        ttDesc.innerHTML       = badge.dataset.desc  || '';
+        ttLayer.style.color    = getLc(badge) || 'var(--keyword)';
+        positionTT(x, y);
+        tt.classList.add('show');
+    }
+
+    function activate(badge) {
+        if (activeEl === badge) return;
+        deactivate();
+        activeEl = badge;
+        const layerName = badge.dataset.layer;
+
+        diag.classList.add('has-hover');
+        badge.classList.add('is-active');
+
+        diag.querySelectorAll('.arch-conn').forEach(c => {
+            if ((c.dataset.layers || '').includes(layerName))
+                c.classList.add('is-active');
+        });
+
+        const pkgKey = layerToPkg[layerName];
+        if (pkgKey) {
+            document.querySelectorAll(`.pkg-line[data-layer="${pkgKey}"]`)
+                    .forEach(l => l.classList.add('layer-hl'));
+        }
+    }
+
+    function deactivate() {
+        if (!activeEl) return;
+        diag.classList.remove('has-hover');
+        diag.querySelectorAll('.is-active').forEach(el => el.classList.remove('is-active'));
+        document.querySelectorAll('.pkg-line.layer-hl').forEach(l => l.classList.remove('layer-hl'));
+        tt.classList.remove('show');
+        activeEl = null;
+    }
+
+    const mobile = () => window.innerWidth <= 600;
+
+    diag.addEventListener('mousemove', e => {
+        if (mobile()) return;
+        const b = e.target.closest('.tool-badge');
+        if (b) { activate(b); showTT(b, e.clientX, e.clientY); }
     });
 
-    new IntersectionObserver(([e]) => {
-        if (e.isIntersecting) {
-            diagram.classList.add('active');
+    diag.addEventListener('mouseleave', () => {
+        if (!mobile()) deactivate();
+    });
+
+    document.addEventListener('click', e => {
+        if (!mobile()) return;
+        const b = e.target.closest('#arch-diag .tool-badge');
+        if (b) {
+            if (b === activeEl) { deactivate(); return; }
+            activate(b);
+            const r = b.getBoundingClientRect();
+            showTT(b, r.left, r.top);
+        } else if (!e.target.closest('#arch-tt')) {
+            deactivate();
         }
-    }, { threshold: 0.25 }).observe(diagram);
+    });
 })();
 </script>
 
